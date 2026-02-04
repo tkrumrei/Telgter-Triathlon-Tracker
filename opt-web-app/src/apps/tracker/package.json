@@ -1,0 +1,10 @@
+{
+    "name": "tracker-app",
+    "private": true,
+    "dependencies": {
+        "@chakra-ui/react": "catalog:",
+        "@open-pioneer/runtime": "catalog:",
+        "react": "catalog:",
+        "ol": "^10.7.0"
+    }
+}
