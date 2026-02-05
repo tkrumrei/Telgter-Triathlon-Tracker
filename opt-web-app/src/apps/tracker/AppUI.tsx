@@ -21,6 +21,11 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
 const EVENT_CODE = import.meta.env.VITE_EVENT_CODE;
 
+// EINSTELLUNG: Wie lange bleibt man eingeloggt? (in Millisekunden)
+// 1000 ms * 60 s * 15 min = 15 Minuten
+const LOGIN_DURATION = 1000 * 60 * 10;
+const STORAGE_KEY = "tri_login_timestamp";
+
 const supabase = (supabaseUrl && supabaseKey)
     ? createClient(supabaseUrl, supabaseKey)
     : null;
@@ -47,7 +52,23 @@ const POINTS_CONFIG = [
 ];
 
 export function AppUI() {
-    const [isAuthenticated, setIsAuthenticated] = useState(!EVENT_CODE);
+    // 1. BEIM START PRÜFEN: Sind wir noch im Zeitfenster?
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        // Falls kein Code in .env definiert ist, immer rein lassen (Dev Mode)
+        if (!EVENT_CODE) return true;
+
+        const storedTimestamp = localStorage.getItem(STORAGE_KEY);
+        if (storedTimestamp) {
+            const lastLogin = parseInt(storedTimestamp, 10);
+            const now = Date.now();
+            // Wenn die Differenz kleiner ist als die erlaubte Dauer -> Eingeloggt bleiben
+            if (now - lastLogin < LOGIN_DURATION) {
+                return true;
+            }
+        }
+        return false;
+    });
+
     const [inputCode, setInputCode] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -58,6 +79,8 @@ export function AppUI() {
         if (inputCode === EVENT_CODE) {
             setIsAuthenticated(true);
             setErrorMsg("");
+            // 2. BEIM LOGIN: Zeitstempel speichern
+            localStorage.setItem(STORAGE_KEY, Date.now().toString());
         } else {
             setErrorMsg("❌ Ungültiger Code");
         }
@@ -67,9 +90,13 @@ export function AppUI() {
         if (e.key === "Enter") handleLogin();
     };
 
-    // --- KARTEN-LOGIK (Startet erst, wenn isAuthenticated = true) ---
+    // --- KARTEN-LOGIK ---
     useEffect(() => {
         if (!isAuthenticated || !mapRef.current || !supabase) return;
+
+        // Wenn man schon eingeloggt ist, aktualisieren wir den Zeitstempel bei jedem App-Start,
+        // damit die 15 Minuten quasi "ab dem letzten Besuch" zählen (optional)
+        localStorage.setItem(STORAGE_KEY, Date.now().toString());
 
         // 1. Participant Layer
         const participantSource = new VectorSource();
@@ -167,7 +194,7 @@ export function AppUI() {
             map.setTarget(undefined);
             supabase.removeChannel(channel);
         };
-    }, [isAuthenticated]); // WICHTIG: Effect hängt jetzt vom Login-Status ab
+    }, [isAuthenticated]);
 
     const updateOrAddMarker = (p: Participant, source: VectorSource) => {
         if (!p.latitude) return;
