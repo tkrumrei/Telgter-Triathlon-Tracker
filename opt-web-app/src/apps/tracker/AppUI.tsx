@@ -32,8 +32,7 @@ interface Participant {
     longitude: number;
 }
 
-// --- ROUTEN KONFIGURATION (JETZT MIT URLs) ---
-// Da die Dateien in "public/routes" liegen, ist die URL im Browser einfach "routes/..."
+// --- ROUTEN & PUNKTE KONFIG ---
 const ROUTES_CONFIG = [
     { url: "routes/Strecke_Schwimmen.json", color: "#5485f4", width: 4, label: "Schwimmen" },
     { url: "routes/Strecke_Fahrrad_Volks.json", color: "#f06c00", width: 4, label: "Rad Volks" },
@@ -42,8 +41,13 @@ const ROUTES_CONFIG = [
     { url: "routes/Strecke_Laufen_Olymp.json", color: "#f153d5", width: 4, label: "Lauf Olymp" }
 ];
 
+const POINTS_CONFIG = [
+    { url: "points/start_point.json", label: "START", color: "#049c04", textColor: "#ffffff", radius: 10 },
+    { url: "points/end_point.json", label: "ZIEL", color: "#000000", textColor: "#ffffff", radius: 10 }
+];
+
 export function AppUI() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(!EVENT_CODE);
     const [inputCode, setInputCode] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -53,28 +57,34 @@ export function AppUI() {
     const handleLogin = () => {
         if (inputCode === EVENT_CODE) {
             setIsAuthenticated(true);
+            setErrorMsg("");
         } else {
-            setErrorMsg("Falscher Code!");
+            setErrorMsg("❌ Ungültiger Code");
         }
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") handleLogin();
+    };
+
+    // --- KARTEN-LOGIK (Startet erst, wenn isAuthenticated = true) ---
     useEffect(() => {
         if (!isAuthenticated || !mapRef.current || !supabase) return;
 
-        // A. LAYER FÜR TEILNEHMER
+        // 1. Participant Layer
         const participantSource = new VectorSource();
         const participantLayer = new VectorLayer({
             source: participantSource,
-            zIndex: 99,
+            zIndex: 100,
             style: (feature) => new Style({
                 image: new CircleStyle({
                     radius: 8,
                     fill: new Fill({ color: "white" }),
-                    stroke: new Stroke({ color: "black", width: 2 }),
+                    stroke: new Stroke({ color: "blue", width: 3 }),
                 }),
                 text: new Text({
                     text: feature.get("name"),
-                    offsetY: -16,
+                    offsetY: -18,
                     font: "bold 14px Roboto, sans-serif",
                     fill: new Fill({ color: "#000" }),
                     stroke: new Stroke({ color: "#fff", width: 3 }),
@@ -82,41 +92,62 @@ export function AppUI() {
             })
         });
 
-        // B. LAYERS FÜR DIE STRECKEN (Über URL laden)
+        // 2. Route Layers
         const routeLayers = ROUTES_CONFIG.map(config => {
             return new VectorLayer({
                 source: new VectorSource({
-                    // WICHTIG: Hier sagen wir OpenLayers, wo die Datei liegt
                     url: config.url,
-                    // Und sagen dazu, dass es GeoJSON ist
-                    format: new GeoJSON()
+                    format: new GeoJSON({ featureProjection: "EPSG:3857" })
                 }),
                 style: new Style({
-                    stroke: new Stroke({
-                        color: config.color,
-                        width: config.width,
-                    })
+                    stroke: new Stroke({ color: config.color, width: config.width })
                 }),
                 zIndex: 1
             });
         });
 
-        // C. KARTE INITIALISIEREN
+        // 3. Point Layers
+        const pointLayers = POINTS_CONFIG.map(config => {
+            return new VectorLayer({
+                source: new VectorSource({
+                    url: config.url,
+                    format: new GeoJSON({ featureProjection: "EPSG:3857" })
+                }),
+                style: new Style({
+                    image: new CircleStyle({
+                        radius: config.radius,
+                        fill: new Fill({ color: config.color }),
+                        stroke: new Stroke({ color: "white", width: 3 }),
+                    }),
+                    text: new Text({
+                        text: config.label,
+                        offsetY: 0,
+                        font: "bold 10px sans-serif",
+                        fill: new Fill({ color: config.textColor }),
+                        stroke: new Stroke({ color: config.color, width: 2 }),
+                    })
+                }),
+                zIndex: 50
+            });
+        });
+
+        // 4. Map Init
         const map = new Map({
             target: mapRef.current,
             layers: [
                 new TileLayer({ source: new OSM() }),
                 ...routeLayers,
+                ...pointLayers,
                 participantLayer
             ],
             controls: defaultControls({ zoom: false }),
             view: new View({
-                center: fromLonLat([7.859806807252341, 51.97351016720559]), // Telgte Zentrum
-                zoom: 13.5,
+                center: fromLonLat([7.785, 51.981]),
+                zoom: 14,
             }),
         });
 
-        // D. DATEN LADEN & LIVE UPDATES
+        // 5. Data Fetching
         const fetchInitialData = async () => {
             const { data } = await supabase.from("participants").select("*");
             if (data) {
@@ -136,7 +167,7 @@ export function AppUI() {
             map.setTarget(undefined);
             supabase.removeChannel(channel);
         };
-    }, [isAuthenticated]);
+    }, [isAuthenticated]); // WICHTIG: Effect hängt jetzt vom Login-Status ab
 
     const updateOrAddMarker = (p: Participant, source: VectorSource) => {
         if (!p.latitude) return;
@@ -152,42 +183,114 @@ export function AppUI() {
         }
     };
 
+    // --- RENDER ANSICHT 1: LOGIN SCREEN (Ohne Karte) ---
     if (!isAuthenticated) {
         return (
-            <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#f0f0f0", fontFamily: "sans-serif" }}>
-                <div style={{ background: "white", padding: "2rem", borderRadius: "10px", boxShadow: "0 4px 10px rgba(0,0,0,0.1)", textAlign: "center" }}>
-                    <h2>🏊🚴🏃 Triathlon Tracker</h2>
-                    <input
-                        type="text"
-                        placeholder="Event Code"
-                        value={inputCode}
-                        onChange={e => setInputCode(e.target.value)}
-                        style={{ padding: "10px", fontSize: "16px", borderRadius: "5px", border: "1px solid #ccc", margin: "10px 0", width: "200px" }}
-                    />
-                    <br/>
-                    <button onClick={handleLogin} style={{ padding: "10px 20px", background: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontSize: "16px" }}>
-                        Starten
-                    </button>
-                    {errorMsg && <p style={{ color: "red", marginTop: "10px" }}>{errorMsg}</p>}
+            <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: "#f4f6f8", fontFamily: "sans-serif" }}>
+
+                {/* 1. Die Überschriftsleiste */}
+                <div style={{
+                    background: "#003366", // Dunkelblaues Triathlon-Feeling
+                    color: "white",
+                    padding: "1.5rem",
+                    textAlign: "center",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+                }}>
+                    <h1 style={{ margin: 0, fontSize: "24px" }}>🏊🚴🏃 Triathlon Tracker Telgte</h1>
+                </div>
+
+                {/* 2. Der zentrierte Content */}
+                <div style={{
+                    flex: 1, // Füllt den Rest der Höhe
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}>
+                    <div style={{
+                        background: "white",
+                        padding: "2.5rem",
+                        borderRadius: "12px",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                        width: "90%",
+                        maxWidth: "400px",
+                        textAlign: "center"
+                    }}>
+                        <h2 style={{ marginTop: 0, color: "#333" }}>Event Zugang</h2>
+                        <p style={{ color: "#666", marginBottom: "20px" }}>Bitte gib den Code ein, um das Live-Tracking zu starten.</p>
+
+                        <input
+                            type="text"
+                            placeholder="Code eingeben..."
+                            value={inputCode}
+                            onChange={e => setInputCode(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                fontSize: "18px",
+                                textAlign: "center",
+                                borderRadius: "8px",
+                                border: "2px solid #ddd",
+                                marginBottom: "15px",
+                                boxSizing: "border-box",
+                                outline: "none"
+                            }}
+                        />
+
+                        <button
+                            onClick={handleLogin}
+                            style={{
+                                width: "100%",
+                                padding: "12px",
+                                fontSize: "16px",
+                                fontWeight: "bold",
+                                background: "#007bff",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                transition: "background 0.2s"
+                            }}
+                        >
+                            Starten
+                        </button>
+
+                        {errorMsg && (
+                            <p style={{ color: "red", marginTop: "15px", fontWeight: "bold" }}>{errorMsg}</p>
+                        )}
+                    </div>
                 </div>
             </div>
         );
     }
 
+    // --- RENDER ANSICHT 2: KARTE (Nur wenn eingeloggt) ---
     return (
         <div style={{ width: "100%", height: "100%", position: "relative" }}>
             <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
+            {/* Legende */}
             <div style={{
                 position: "absolute", bottom: 20, right: 10,
-                background: "rgba(255,255,255,0.9)", padding: "10px", borderRadius: "5px",
-                boxShadow: "0 0 5px rgba(0,0,0,0.2)", fontSize: "12px", fontFamily: "sans-serif"
+                background: "rgba(255,255,255,0.9)", padding: "12px", borderRadius: "8px",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.1)", fontSize: "12px", fontFamily: "sans-serif",
+                zIndex: 1000
             }}>
-                <div style={{marginBottom: 4}}><b>Strecken:</b></div>
+                <div style={{marginBottom: 6, fontWeight: "bold", borderBottom: "1px solid #eee", paddingBottom: 4}}>Strecken & Punkte:</div>
+
                 {ROUTES_CONFIG.map(r => (
-                    <div key={r.label} style={{display: "flex", alignItems: "center", marginTop: 2}}>
-                        <span style={{width: 10, height: 10, background: r.color, marginRight: 5, borderRadius: "50%"}}></span>
+                    <div key={r.label} style={{display: "flex", alignItems: "center", marginTop: 4}}>
+                        <span style={{width: 12, height: 4, background: r.color, marginRight: 8, borderRadius: 2}}></span>
                         {r.label}
+                    </div>
+                ))}
+
+                <div style={{height: 1, background: "#eee", margin: "8px 0"}}></div>
+
+                {POINTS_CONFIG.map(p => (
+                    <div key={p.label} style={{display: "flex", alignItems: "center", marginTop: 4}}>
+                        <span style={{width: 10, height: 10, background: p.color, marginRight: 8, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.1)"}}></span>
+                        {p.label}
                     </div>
                 ))}
             </div>
