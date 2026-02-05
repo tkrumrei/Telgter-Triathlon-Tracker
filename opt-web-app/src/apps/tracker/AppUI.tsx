@@ -291,35 +291,56 @@ export function AppUI() {
         );
     }
 
-    // --- RENDER ANSICHT 2: KARTE (Nur wenn eingeloggt) ---
+    // --- RENDER ANSICHT 2: KARTE MIT HEADER (Nur wenn eingeloggt) ---
     return (
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
-            <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+        // Flexbox Layout: Header oben fest, Karte füllt den Rest
+        <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
 
-            {/* Legende */}
+            {/* 1. Der schlanke Header */}
             <div style={{
-                position: "absolute", bottom: 20, right: 10,
-                background: "rgba(255,255,255,0.9)", padding: "12px", borderRadius: "8px",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.1)", fontSize: "12px", fontFamily: "sans-serif",
-                zIndex: 1000
+                height: "50px", // Schön kompakt für Mobile
+                background: "#003366",
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.2)", // Kleiner Schatten nach unten
+                zIndex: 2000 // Über der Karte liegen
             }}>
-                <div style={{marginBottom: 6, fontWeight: "bold", borderBottom: "1px solid #eee", paddingBottom: 4}}>Strecken & Punkte:</div>
+                <span style={{ fontSize: "16px", fontWeight: "bold", fontFamily: "sans-serif" }}>
+                    🏊🚴🏃 Triathlon Telgte
+                </span>
+            </div>
 
-                {ROUTES_CONFIG.map(r => (
-                    <div key={r.label} style={{display: "flex", alignItems: "center", marginTop: 4}}>
-                        <span style={{width: 12, height: 4, background: r.color, marginRight: 8, borderRadius: 2}}></span>
-                        {r.label}
-                    </div>
-                ))}
+            {/* 2. Der Karten-Container */}
+            <div style={{ flex: 1, position: "relative" }}>
+                <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
-                <div style={{height: 1, background: "#eee", margin: "8px 0"}}></div>
+                {/* Legende (Position leicht angepasst, damit sie nicht unter den Header rutscht) */}
+                <div style={{
+                    position: "absolute", top: 10, right: 10,
+                    background: "rgba(255,255,255,0.9)", padding: "8px", borderRadius: "6px",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)", fontSize: "11px", fontFamily: "sans-serif",
+                    zIndex: 1000, maxWidth: "120px"
+                }}>
+                    <div style={{marginBottom: 4, fontWeight: "bold", borderBottom: "1px solid #eee", paddingBottom: 2}}>Strecken:</div>
 
-                {POINTS_CONFIG.map(p => (
-                    <div key={p.label} style={{display: "flex", alignItems: "center", marginTop: 4}}>
-                        <span style={{width: 10, height: 10, background: p.color, marginRight: 8, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.1)"}}></span>
-                        {p.label}
-                    </div>
-                ))}
+                    {ROUTES_CONFIG.map(r => (
+                        <div key={r.label} style={{display: "flex", alignItems: "center", marginTop: 3}}>
+                            <span style={{width: 10, height: 3, background: r.color, marginRight: 6, borderRadius: 2}}></span>
+                            {r.label}
+                        </div>
+                    ))}
+
+                    <div style={{height: 1, background: "#eee", margin: "4px 0"}}></div>
+
+                    {POINTS_CONFIG.map(p => (
+                        <div key={p.label} style={{display: "flex", alignItems: "center", marginTop: 3}}>
+                            <span style={{width: 8, height: 8, background: p.color, marginRight: 6, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.1)"}}></span>
+                            {p.label}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
