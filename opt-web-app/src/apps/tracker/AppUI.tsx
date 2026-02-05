@@ -13,6 +13,7 @@ import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import { fromLonLat } from "ol/proj";
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from "ol/style";
+// Nur noch defaultControls importieren, keine Attribution mehr!
 import { defaults as defaultControls } from "ol/control";
 import GeoJSON from "ol/format/GeoJSON";
 
@@ -35,14 +36,12 @@ interface Participant {
     longitude: number;
 }
 
-// 1. FARBEN DEFINIEREN (Damit sie überall gleich sind)
 const COLORS = {
-    swim: "#5485f4", // Blau
-    bike: "#f06c00", // Orange
-    run:  "#f153d5"  // Pink
+    swim: "#5485f4",
+    bike: "#f06c00",
+    run:  "#f153d5"
 };
 
-// 2. ROUTEN KONFIGURATION (Technisch: Welche Dateien laden wir?)
 const ROUTES_CONFIG = [
     { url: "routes/Strecke_Schwimmen.json", color: COLORS.swim, width: 4, category: "common" },
     { url: "routes/Strecke_Fahrrad_Volks.json", color: COLORS.bike, width: 4, category: "volks" },
@@ -51,8 +50,6 @@ const ROUTES_CONFIG = [
     { url: "routes/Strecke_Laufen_Olymp.json", color: COLORS.run, width: 4, category: "olymp" }
 ];
 
-// 3. LEGENDE KONFIGURATION (Optisch: Was zeigen wir dem Nutzer?)
-// Viel kürzer und übersichtlicher!
 const LEGEND_ITEMS = [
     { label: "Schwimmen", color: COLORS.swim },
     { label: "Radfahren", color: COLORS.bike },
@@ -65,7 +62,6 @@ const POINTS_CONFIG = [
 ];
 
 export function AppUI() {
-    // --- AUTH & STATE ---
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
         if (!EVENT_CODE) return true;
         const storedTimestamp = localStorage.getItem(STORAGE_KEY);
@@ -178,7 +174,12 @@ export function AppUI() {
                 ...pointLayers,
                 participantLayer
             ],
-            controls: defaultControls({ zoom: false }),
+            // HIER IST DIE ÄNDERUNG: Wir schalten ALLES aus.
+            controls: defaultControls({
+                zoom: false,        // Weg damit
+                rotate: false,      // Weg damit
+                attribution: false  // Auch weg (wir machen es manuell)
+            }),
             view: new View({
                 center: fromLonLat([7.785, 51.981]),
                 zoom: 14,
@@ -221,7 +222,7 @@ export function AppUI() {
             } else if (activeFilter === category) {
                 layer.setOpacity(1);
             } else {
-                layer.setOpacity(0.25); // Inaktiv = fast transparent
+                layer.setOpacity(0.25);
             }
         });
     }, [activeFilter, isAuthenticated]);
@@ -241,7 +242,6 @@ export function AppUI() {
         }
     };
 
-    // --- LOGIN SCREEN ---
     if (!isAuthenticated) {
         return (
             <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: "#f4f6f8", fontFamily: "sans-serif" }}>
@@ -261,7 +261,6 @@ export function AppUI() {
         );
     }
 
-    // --- MAP SCREEN ---
     return (
         <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
             {/* Header */}
@@ -272,7 +271,17 @@ export function AppUI() {
             <div style={{ flex: 1, position: "relative" }}>
                 <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
-                {/* Legende & Filter Controls */}
+                {/* 1. MANUELLE ATTRIBUTION (Unten rechts, dezent) */}
+                <div style={{
+                    position: "absolute", bottom: 4, right: 6,
+                    background: "rgba(255,255,255,0.6)", padding: "2px 5px", borderRadius: "4px",
+                    fontSize: "10px", color: "#555", fontFamily: "sans-serif", pointerEvents: "auto",
+                    zIndex: 900
+                }}>
+                    © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" style={{color: "#333", textDecoration: "none"}}>OpenStreetMap contributors</a>
+                </div>
+
+                {/* 2. Legende & Filter (Oben rechts) */}
                 <div style={{
                     position: "absolute", top: 10, right: 10,
                     background: "rgba(255,255,255,0.95)", padding: "10px", borderRadius: "8px",
@@ -280,7 +289,6 @@ export function AppUI() {
                     zIndex: 1000, maxWidth: "140px",
                     display: "flex", flexDirection: "column", gap: "8px"
                 }}>
-                    {/* 1. FILTER BUTTONS */}
                     <div style={{display: "flex", flexDirection: "column", gap: "4px"}}>
                         <div style={{fontWeight: "bold", marginBottom: 2}}>Distanz wählen:</div>
                         <div style={{display: "flex", gap: "2px"}}>
@@ -292,7 +300,6 @@ export function AppUI() {
 
                     <div style={{height: 1, background: "#ddd"}}></div>
 
-                    {/* 2. VEREINFACHTE LEGENDE */}
                     <div>
                         <div style={{marginBottom: 4, fontWeight: "bold"}}>Disziplinen:</div>
                         {LEGEND_ITEMS.map(item => (
