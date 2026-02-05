@@ -21,8 +21,6 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
 const EVENT_CODE = import.meta.env.VITE_EVENT_CODE;
 
-// EINSTELLUNG: Wie lange bleibt man eingeloggt? (in Millisekunden)
-// 1000 ms * 60 s * 15 min = 15 Minuten
 const LOGIN_DURATION = 1000 * 60 * 10;
 const STORAGE_KEY = "tri_login_timestamp";
 
@@ -37,13 +35,28 @@ interface Participant {
     longitude: number;
 }
 
-// --- ROUTEN & PUNKTE KONFIG ---
+// 1. FARBEN DEFINIEREN (Damit sie überall gleich sind)
+const COLORS = {
+    swim: "#5485f4", // Blau
+    bike: "#f06c00", // Orange
+    run:  "#f153d5"  // Pink
+};
+
+// 2. ROUTEN KONFIGURATION (Technisch: Welche Dateien laden wir?)
 const ROUTES_CONFIG = [
-    { url: "routes/Strecke_Schwimmen.json", color: "#5485f4", width: 4, label: "Schwimmen" },
-    { url: "routes/Strecke_Fahrrad_Volks.json", color: "#f06c00", width: 4, label: "Rad Volks" },
-    { url: "routes/Strecke_Laufen_Volks.json", color: "#f153d5", width: 4, label: "Lauf Volks" },
-    { url: "routes/Strecke_Fahrrad_Olymp.json", color: "#f06c00", width: 4, label: "Rad Olymp" },
-    { url: "routes/Strecke_Laufen_Olymp.json", color: "#f153d5", width: 4, label: "Lauf Olymp" }
+    { url: "routes/Strecke_Schwimmen.json", color: COLORS.swim, width: 4, category: "common" },
+    { url: "routes/Strecke_Fahrrad_Volks.json", color: COLORS.bike, width: 4, category: "volks" },
+    { url: "routes/Strecke_Laufen_Volks.json", color: COLORS.run, width: 4, category: "volks" },
+    { url: "routes/Strecke_Fahrrad_Olymp.json", color: COLORS.bike, width: 4, category: "olymp" },
+    { url: "routes/Strecke_Laufen_Olymp.json", color: COLORS.run, width: 4, category: "olymp" }
+];
+
+// 3. LEGENDE KONFIGURATION (Optisch: Was zeigen wir dem Nutzer?)
+// Viel kürzer und übersichtlicher!
+const LEGEND_ITEMS = [
+    { label: "Schwimmen", color: COLORS.swim },
+    { label: "Radfahren", color: COLORS.bike },
+    { label: "Laufen", color: COLORS.run }
 ];
 
 const POINTS_CONFIG = [
@@ -52,34 +65,30 @@ const POINTS_CONFIG = [
 ];
 
 export function AppUI() {
-    // 1. BEIM START PRÜFEN: Sind wir noch im Zeitfenster?
+    // --- AUTH & STATE ---
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        // Falls kein Code in .env definiert ist, immer rein lassen (Dev Mode)
         if (!EVENT_CODE) return true;
-
         const storedTimestamp = localStorage.getItem(STORAGE_KEY);
         if (storedTimestamp) {
             const lastLogin = parseInt(storedTimestamp, 10);
             const now = Date.now();
-            // Wenn die Differenz kleiner ist als die erlaubte Dauer -> Eingeloggt bleiben
-            if (now - lastLogin < LOGIN_DURATION) {
-                return true;
-            }
+            if (now - lastLogin < LOGIN_DURATION) return true;
         }
         return false;
     });
 
+    const [activeFilter, setActiveFilter] = useState<"all" | "volks" | "olymp">("all");
     const [inputCode, setInputCode] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
     const mapRef = useRef<HTMLDivElement>(null);
     const featuresRef = useRef(new Map<string, Feature>());
+    const routeLayersRef = useRef<VectorLayer<VectorSource>[]>([]);
 
     const handleLogin = () => {
         if (inputCode === EVENT_CODE) {
             setIsAuthenticated(true);
             setErrorMsg("");
-            // 2. BEIM LOGIN: Zeitstempel speichern
             localStorage.setItem(STORAGE_KEY, Date.now().toString());
         } else {
             setErrorMsg("❌ Ungültiger Code");
@@ -90,15 +99,13 @@ export function AppUI() {
         if (e.key === "Enter") handleLogin();
     };
 
-    // --- KARTEN-LOGIK ---
+    // --- EFFECT 1: KARTEN INITIALISIERUNG ---
     useEffect(() => {
         if (!isAuthenticated || !mapRef.current || !supabase) return;
 
-        // Wenn man schon eingeloggt ist, aktualisieren wir den Zeitstempel bei jedem App-Start,
-        // damit die 15 Minuten quasi "ab dem letzten Besuch" zählen (optional)
         localStorage.setItem(STORAGE_KEY, Date.now().toString());
 
-        // 1. Participant Layer
+        // A. Participant Layer
         const participantSource = new VectorSource();
         const participantLayer = new VectorLayer({
             source: participantSource,
@@ -119,9 +126,9 @@ export function AppUI() {
             })
         });
 
-        // 2. Route Layers
-        const routeLayers = ROUTES_CONFIG.map(config => {
-            return new VectorLayer({
+        // B. Route Layers
+        const createdRouteLayers = ROUTES_CONFIG.map(config => {
+            const layer = new VectorLayer({
                 source: new VectorSource({
                     url: config.url,
                     format: new GeoJSON({ featureProjection: "EPSG:3857" })
@@ -131,9 +138,13 @@ export function AppUI() {
                 }),
                 zIndex: 1
             });
+            layer.set("category", config.category);
+            return layer;
         });
 
-        // 3. Point Layers
+        routeLayersRef.current = createdRouteLayers;
+
+        // C. Point Layers
         const pointLayers = POINTS_CONFIG.map(config => {
             return new VectorLayer({
                 source: new VectorSource({
@@ -158,12 +169,12 @@ export function AppUI() {
             });
         });
 
-        // 4. Map Init
+        // D. Map Init
         const map = new Map({
             target: mapRef.current,
             layers: [
                 new TileLayer({ source: new OSM() }),
-                ...routeLayers,
+                ...createdRouteLayers,
                 ...pointLayers,
                 participantLayer
             ],
@@ -174,7 +185,7 @@ export function AppUI() {
             }),
         });
 
-        // 5. Data Fetching
+        // E. Data Fetching
         const fetchInitialData = async () => {
             const { data } = await supabase.from("participants").select("*");
             if (data) {
@@ -193,8 +204,28 @@ export function AppUI() {
         return () => {
             map.setTarget(undefined);
             supabase.removeChannel(channel);
+            routeLayersRef.current = [];
         };
     }, [isAuthenticated]);
+
+
+    // --- EFFECT 2: FILTER LOGIK ---
+    useEffect(() => {
+        routeLayersRef.current.forEach(layer => {
+            const category = layer.get("category");
+
+            if (category === "common") {
+                layer.setOpacity(1);
+            } else if (activeFilter === "all") {
+                layer.setOpacity(1);
+            } else if (activeFilter === category) {
+                layer.setOpacity(1);
+            } else {
+                layer.setOpacity(0.25); // Inaktiv = fast transparent
+            }
+        });
+    }, [activeFilter, isAuthenticated]);
+
 
     const updateOrAddMarker = (p: Participant, source: VectorSource) => {
         if (!p.latitude) return;
@@ -210,136 +241,78 @@ export function AppUI() {
         }
     };
 
-    // --- RENDER ANSICHT 1: LOGIN SCREEN (Ohne Karte) ---
+    // --- LOGIN SCREEN ---
     if (!isAuthenticated) {
         return (
             <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: "#f4f6f8", fontFamily: "sans-serif" }}>
-
-                {/* 1. Die Überschriftsleiste */}
-                <div style={{
-                    background: "#003366", // Dunkelblaues Triathlon-Feeling
-                    color: "white",
-                    padding: "1.5rem",
-                    textAlign: "center",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
-                }}>
-                    <h1 style={{ margin: 0, fontSize: "24px" }}>🏊🚴🏃 Triathlon Tracker Telgte</h1>
+                <div style={{ background: "#003366", color: "white", padding: "1.5rem", textAlign: "center", boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
+                    <h1 style={{ margin: 0, fontSize: "24px" }}> Telgter Triathlon Tracker 🏊🚴🏃</h1>
                 </div>
-
-                {/* 2. Der zentrierte Content */}
-                <div style={{
-                    flex: 1, // Füllt den Rest der Höhe
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                }}>
-                    <div style={{
-                        background: "white",
-                        padding: "2.5rem",
-                        borderRadius: "12px",
-                        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                        width: "90%",
-                        maxWidth: "400px",
-                        textAlign: "center"
-                    }}>
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ background: "white", padding: "2.5rem", borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", width: "90%", maxWidth: "400px", textAlign: "center" }}>
                         <h2 style={{ marginTop: 0, color: "#333" }}>Event Zugang</h2>
-                        <p style={{ color: "#666", marginBottom: "20px" }}>Bitte gib den Code ein, um das Live-Tracking zu starten.</p>
-
-                        <input
-                            type="text"
-                            placeholder="Code eingeben..."
-                            value={inputCode}
-                            onChange={e => setInputCode(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            style={{
-                                width: "100%",
-                                padding: "12px",
-                                fontSize: "18px",
-                                textAlign: "center",
-                                borderRadius: "8px",
-                                border: "2px solid #ddd",
-                                marginBottom: "15px",
-                                boxSizing: "border-box",
-                                outline: "none"
-                            }}
-                        />
-
-                        <button
-                            onClick={handleLogin}
-                            style={{
-                                width: "100%",
-                                padding: "12px",
-                                fontSize: "16px",
-                                fontWeight: "bold",
-                                background: "#007bff",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                transition: "background 0.2s"
-                            }}
-                        >
-                            Starten
-                        </button>
-
-                        {errorMsg && (
-                            <p style={{ color: "red", marginTop: "15px", fontWeight: "bold" }}>{errorMsg}</p>
-                        )}
+                        <p style={{ color: "#666", marginBottom: "20px" }}>Bitte gib den Code ein.</p>
+                        <input type="text" placeholder="Code..." value={inputCode} onChange={e => setInputCode(e.target.value)} onKeyDown={handleKeyDown} style={{ width: "100%", padding: "12px", fontSize: "18px", textAlign: "center", borderRadius: "8px", border: "2px solid #ddd", marginBottom: "15px", boxSizing: "border-box", outline: "none" }} />
+                        <button onClick={handleLogin} style={{ width: "100%", padding: "12px", fontSize: "16px", fontWeight: "bold", background: "#007bff", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>Starten</button>
+                        {errorMsg && <p style={{ color: "red", marginTop: "15px", fontWeight: "bold" }}>{errorMsg}</p>}
                     </div>
                 </div>
             </div>
         );
     }
 
-    // --- RENDER ANSICHT 2: KARTE MIT HEADER (Nur wenn eingeloggt) ---
+    // --- MAP SCREEN ---
     return (
-        // Flexbox Layout: Header oben fest, Karte füllt den Rest
         <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-
-            {/* 1. Der schlanke Header */}
-            <div style={{
-                height: "50px", // Schön kompakt für Mobile
-                background: "#003366",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.2)", // Kleiner Schatten nach unten
-                zIndex: 2000 // Über der Karte liegen
-            }}>
-                <span style={{ fontSize: "16px", fontWeight: "bold", fontFamily: "sans-serif" }}>
-                    🏊🚴🏃 Triathlon Telgte
-                </span>
+            {/* Header */}
+            <div style={{ height: "50px", background: "#003366", color: "white", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", zIndex: 2000 }}>
+                <span style={{ fontSize: "16px", fontWeight: "bold", fontFamily: "sans-serif" }}>3. Telgter Triathlon 🏊🚴🏃</span>
             </div>
 
-            {/* 2. Der Karten-Container */}
             <div style={{ flex: 1, position: "relative" }}>
                 <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
-                {/* Legende (Position leicht angepasst, damit sie nicht unter den Header rutscht) */}
+                {/* Legende & Filter Controls */}
                 <div style={{
                     position: "absolute", top: 10, right: 10,
-                    background: "rgba(255,255,255,0.9)", padding: "8px", borderRadius: "6px",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)", fontSize: "11px", fontFamily: "sans-serif",
-                    zIndex: 1000, maxWidth: "120px"
+                    background: "rgba(255,255,255,0.95)", padding: "10px", borderRadius: "8px",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.2)", fontSize: "11px", fontFamily: "sans-serif",
+                    zIndex: 1000, maxWidth: "140px",
+                    display: "flex", flexDirection: "column", gap: "8px"
                 }}>
-                    <div style={{marginBottom: 4, fontWeight: "bold", borderBottom: "1px solid #eee", paddingBottom: 2}}>Strecken:</div>
-
-                    {ROUTES_CONFIG.map(r => (
-                        <div key={r.label} style={{display: "flex", alignItems: "center", marginTop: 3}}>
-                            <span style={{width: 10, height: 3, background: r.color, marginRight: 6, borderRadius: 2}}></span>
-                            {r.label}
+                    {/* 1. FILTER BUTTONS */}
+                    <div style={{display: "flex", flexDirection: "column", gap: "4px"}}>
+                        <div style={{fontWeight: "bold", marginBottom: 2}}>Distanz wählen:</div>
+                        <div style={{display: "flex", gap: "2px"}}>
+                            <button onClick={() => setActiveFilter("all")} style={{ flex: 1, padding: "4px", fontSize: "10px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", background: activeFilter === "all" ? "#003366" : "white", color: activeFilter === "all" ? "white" : "black" }}>Alle</button>
+                            <button onClick={() => setActiveFilter("volks")} style={{ flex: 1, padding: "4px", fontSize: "10px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", background: activeFilter === "volks" ? "#003366" : "white", color: activeFilter === "volks" ? "white" : "black" }}>Volks</button>
+                            <button onClick={() => setActiveFilter("olymp")} style={{ flex: 1, padding: "4px", fontSize: "10px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", background: activeFilter === "olymp" ? "#003366" : "white", color: activeFilter === "olymp" ? "white" : "black" }}>Olymp</button>
                         </div>
-                    ))}
+                    </div>
 
-                    <div style={{height: 1, background: "#eee", margin: "4px 0"}}></div>
+                    <div style={{height: 1, background: "#ddd"}}></div>
 
-                    {POINTS_CONFIG.map(p => (
-                        <div key={p.label} style={{display: "flex", alignItems: "center", marginTop: 3}}>
-                            <span style={{width: 8, height: 8, background: p.color, marginRight: 6, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.1)"}}></span>
-                            {p.label}
-                        </div>
-                    ))}
+                    {/* 2. VEREINFACHTE LEGENDE */}
+                    <div>
+                        <div style={{marginBottom: 4, fontWeight: "bold"}}>Disziplinen:</div>
+                        {LEGEND_ITEMS.map(item => (
+                            <div key={item.label} style={{ display: "flex", alignItems: "center", marginTop: 3 }}>
+                                <span style={{width: 10, height: 3, background: item.color, marginRight: 6, borderRadius: 2}}></span>
+                                {item.label}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div style={{height: 1, background: "#ddd"}}></div>
+
+                    <div>
+                        {POINTS_CONFIG.map(p => (
+                            <div key={p.label} style={{display: "flex", alignItems: "center", marginTop: 3}}>
+                                <span style={{width: 8, height: 8, background: p.color, marginRight: 6, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.1)"}}></span>
+                                {p.label}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
