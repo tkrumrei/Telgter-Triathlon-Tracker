@@ -111,8 +111,8 @@ export function AppUI() {
             ],
             controls: defaultControls({ zoom: false }),
             view: new View({
-                center: fromLonLat([7.785, 51.981]), // Telgte Zentrum
-                zoom: 13,
+                center: fromLonLat([7.859806807252341, 51.97351016720559]), // Telgte Zentrum
+                zoom: 13.5,
             }),
         });
 
