@@ -62,23 +62,19 @@ const LEGEND_ITEMS = [
 
 const POINTS_CONFIG = [
     { url: "points/start_point.json", label: "START", color: "#049c04", textColor: "#ffffff", radius: 10 },
-    { url: "points/end_point.json", label: "ZIEL", color: "#000000", textColor: "#ffffff", radius: 10 }
+    { url: "points/end_point.json", label: "ZIEL", color: "#e6b800", textColor: "#ffffff", radius: 10 }
 ];
 
 // --- STYLE HELPER: Bestimmt Farbe nach Distanz ---
 const getParticipantStyle = (name: string, distanzRaw: string) => {
-    // Sicherstellen, dass wir Kleinbuchstaben vergleichen ("V" vs "v")
     const d = distanzRaw ? distanzRaw.toLowerCase() : "";
 
     // Logik: Ist es Volksdistanz?
     const isVolks = d.includes("volks") || d === "v";
-
-    // Farben setzen:
-    // Volks ("v") = Weißer Punkt (mit schwarzem Rand für Kontrast)
-    // Olymp ("o") = Schwarzer Punkt (mit weißem Rand für Kontrast)
-    const fillColor = isVolks ? "#ffffff" : "#000000";
-    const strokeColor = isVolks ? "#000000" : "#ffffff";
-    const textColor = "#000000"; // Text immer Schwarz
+    
+    const fillColor = "#ffffff";
+    const strokeColor = isVolks ? "#000000" : "#777777";
+    const textColor = isVolks ? "#000000" : "#777777";
     const textStroke = "#ffffff"; // Text Rand immer Weiß
 
     return new Style({
