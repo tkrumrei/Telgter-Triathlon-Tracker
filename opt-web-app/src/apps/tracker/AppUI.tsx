@@ -395,15 +395,15 @@ export function AppUI() {
                     fontFamily: "sans-serif",
                     zIndex: 1000,
                     width: "200px", // Breiter (war maxWidth 140px)
-                    display: "flex", flexDirection: "column", gap: "12px" // Mehr Abstand zwischen den Zeilen
+                    display: "flex", flexDirection: "column", gap: "6px" // Mehr Abstand zwischen den Zeilen
                 }}>
                     <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
                         <div style={{fontWeight: "bold", fontSize: "15px", marginBottom: 4}}>Distanz wählen:</div>
                         <div style={{display: "flex", gap: "8px"}}> {/* Mehr Lücke zwischen Buttons */}
                             {/* Buttons deutlich vergrößert */}
-                            <button onClick={() => setActiveFilter("all")} style={{ flex: 1, padding: "10px 5px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "all" ? "#003366" : "white", color: activeFilter === "all" ? "white" : "black" }}>Alle</button>
-                            <button onClick={() => setActiveFilter("volks")} style={{ flex: 1, padding: "10px 5px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "volks" ? "#003366" : "white", color: activeFilter === "volks" ? "white" : "black" }}>Volks</button>
-                            <button onClick={() => setActiveFilter("olymp")} style={{ flex: 1, padding: "10px 5px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "olymp" ? "#003366" : "white", color: activeFilter === "olymp" ? "white" : "black" }}>Olymp</button>
+                            <button onClick={() => setActiveFilter("all")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "all" ? "#003366" : "white", color: activeFilter === "all" ? "white" : "black" }}>Alle</button>
+                            <button onClick={() => setActiveFilter("volks")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "volks" ? "#003366" : "white", color: activeFilter === "volks" ? "white" : "black" }}>Volks</button>
+                            <button onClick={() => setActiveFilter("olymp")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "olymp" ? "#003366" : "white", color: activeFilter === "olymp" ? "white" : "black" }}>Olymp</button>
                         </div>
                     </div>
 
@@ -415,7 +415,7 @@ export function AppUI() {
                             <div key={item.label} style={{ display: "flex", alignItems: "center", marginTop: 6 }}>
                                 {/* Striche dicker und länger gemacht */}
                                 <span style={{width: 24, height: 6, background: item.color, marginRight: 10, borderRadius: 3}}></span>
-                                <span style={{fontSize: "14px"}}>{item.label}</span>
+                                <span style={{fontSize: "14px", fontWeight: "bold"}}>{item.label}</span>
                             </div>
                         ))}
                     </div>
