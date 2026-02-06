@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "ol/ol.css";
-import Map from "ol/Map";
+import OlMap from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
@@ -13,7 +13,6 @@ import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import { fromLonLat } from "ol/proj";
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from "ol/style";
-// Nur noch defaultControls importieren, keine Attribution mehr!
 import { defaults as defaultControls } from "ol/control";
 import GeoJSON from "ol/format/GeoJSON";
 
@@ -25,6 +24,9 @@ const EVENT_CODE = import.meta.env.VITE_EVENT_CODE;
 const LOGIN_DURATION = 1000 * 60 * 10;
 const STORAGE_KEY = "tri_login_timestamp";
 
+// Timeout Einstellung
+const MARKER_TIMEOUT = 1000 * 60 * 30;
+
 const supabase = (supabaseUrl && supabaseKey)
     ? createClient(supabaseUrl, supabaseKey)
     : null;
@@ -34,6 +36,7 @@ interface Participant {
     name: string;
     latitude: number;
     longitude: number;
+    last_updated: string;
 }
 
 const COLORS = {
@@ -78,7 +81,10 @@ export function AppUI() {
     const [errorMsg, setErrorMsg] = useState("");
 
     const mapRef = useRef<HTMLDivElement>(null);
+
+    // Wir nutzen das hier nur noch für den Cleanup-Intervall
     const featuresRef = useRef(new Map<string, Feature>());
+
     const routeLayersRef = useRef<VectorLayer<VectorSource>[]>([]);
 
     const handleLogin = () => {
@@ -166,7 +172,7 @@ export function AppUI() {
         });
 
         // D. Map Init
-        const map = new Map({
+        const map = new OlMap({
             target: mapRef.current,
             layers: [
                 new TileLayer({ source: new OSM() }),
@@ -174,11 +180,10 @@ export function AppUI() {
                 ...pointLayers,
                 participantLayer
             ],
-            // HIER IST DIE ÄNDERUNG: Wir schalten ALLES aus.
             controls: defaultControls({
-                zoom: false,        // Weg damit
-                rotate: false,      // Weg damit
-                attribution: false  // Auch weg (wir machen es manuell)
+                zoom: false,
+                rotate: false,
+                attribution: false
             }),
             view: new View({
                 center: fromLonLat([7.785, 51.981]),
@@ -186,26 +191,99 @@ export function AppUI() {
             }),
         });
 
-        // E. Data Fetching
+        // --- HILFSFUNKTION: Marker Updaten oder Löschen ---
+        const updateOrAddMarker = (p: Participant) => {
+            if (!p.latitude || !p.longitude) return;
+
+            const lastUpdate = p.last_updated ? new Date(p.last_updated).getTime() : 0;
+            const now = Date.now();
+            const isTooOld = (now - lastUpdate) > MARKER_TIMEOUT;
+
+            // 2. FIX: Wir fragen direkt die Karte nach dem Feature via ID!
+            // Das verhindert das "Ghosting" Problem
+            const existingFeature = participantSource.getFeatureById(p.id);
+
+            // A. Löschen (wenn zu alt)
+            if (isTooOld) {
+                if (existingFeature) {
+                    participantSource.removeFeature(existingFeature as Feature);
+                }
+                // Aus Ref löschen damit Cleanup sauber bleibt
+                featuresRef.current.delete(p.id);
+                return;
+            }
+
+            const coords = fromLonLat([p.longitude, p.latitude]);
+
+            // B. Updaten (wenn vorhanden)
+            if (existingFeature) {
+                // Wir nutzen direkt das Feature von der Karte -> Sofortiges Update!
+                (existingFeature.getGeometry() as Point).setCoordinates(coords);
+                existingFeature.set("last_updated_ts", lastUpdate);
+
+                // Ref synchron halten
+                featuresRef.current.set(p.id, existingFeature as Feature);
+            } else {
+                // C. Neu erstellen
+                const feature = new Feature({
+                    geometry: new Point(coords),
+                    name: p.name
+                });
+
+                // 3. FIX: ID setzen ist PFLICHT, damit getFeatureById oben funktioniert!
+                feature.setId(p.id);
+                feature.set("last_updated_ts", lastUpdate);
+
+                participantSource.addFeature(feature);
+                featuresRef.current.set(p.id, feature);
+            }
+        };
+
+        // E. Data Fetching (Initial)
         const fetchInitialData = async () => {
             const { data } = await supabase.from("participants").select("*");
             if (data) {
-                data.forEach(p => updateOrAddMarker(p as unknown as Participant, participantSource));
+                data.forEach(p => updateOrAddMarker(p as unknown as Participant));
             }
         };
         fetchInitialData();
 
+        // F. Realtime Subscription
         const channel = supabase
             .channel("tracking")
             .on("postgres_changes", { event: "UPDATE", schema: "public", table: "participants" },
-                (payload) => updateOrAddMarker(payload.new as Participant, participantSource)
+                (payload) => updateOrAddMarker(payload.new as Participant)
             )
             .subscribe();
 
+        // G. INTERVAL
+        const cleanupInterval = setInterval(() => {
+            const now = Date.now();
+
+            featuresRef.current.forEach((_, id) => {
+                // Wir holen uns das Feature sicherheitshalber direkt von der Source
+                const feature = participantSource.getFeatureById(id);
+                if (feature) {
+                    const ts = feature.get("last_updated_ts");
+                    if (ts && (now - ts > MARKER_TIMEOUT)) {
+                        participantSource.removeFeature(feature as Feature);
+                        featuresRef.current.delete(id);
+                        console.log(`Teilnehmer ${id} ausgeblendet.`);
+                    }
+                } else {
+                    // Falls es in Ref ist aber nicht mehr auf der Karte
+                    featuresRef.current.delete(id);
+                }
+            });
+        }, 60000);
+
         return () => {
+            clearInterval(cleanupInterval);
             map.setTarget(undefined);
             supabase.removeChannel(channel);
             routeLayersRef.current = [];
+            // 4. FIX: Gedächtnis löschen für Dev-Mode
+            featuresRef.current.clear();
         };
     }, [isAuthenticated]);
 
@@ -226,21 +304,6 @@ export function AppUI() {
             }
         });
     }, [activeFilter, isAuthenticated]);
-
-
-    const updateOrAddMarker = (p: Participant, source: VectorSource) => {
-        if (!p.latitude) return;
-        const coords = fromLonLat([p.longitude, p.latitude]);
-        const existing = featuresRef.current.get(p.id);
-
-        if (existing) {
-            (existing.getGeometry() as Point).setCoordinates(coords);
-        } else {
-            const feature = new Feature({ geometry: new Point(coords), name: p.name });
-            source.addFeature(feature);
-            featuresRef.current.set(p.id, feature);
-        }
-    };
 
     if (!isAuthenticated) {
         return (
@@ -263,7 +326,6 @@ export function AppUI() {
 
     return (
         <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
-            {/* Header */}
             <div style={{ height: "50px", background: "#003366", color: "white", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.2)", zIndex: 2000 }}>
                 <span style={{ fontSize: "16px", fontWeight: "bold", fontFamily: "sans-serif" }}>3. Telgter Triathlon 🏊🚴🏃</span>
             </div>
@@ -271,7 +333,6 @@ export function AppUI() {
             <div style={{ flex: 1, position: "relative" }}>
                 <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
-                {/* 1. MANUELLE ATTRIBUTION (Unten rechts, dezent) */}
                 <div style={{
                     position: "absolute", bottom: 4, right: 6,
                     background: "rgba(255,255,255,0.6)", padding: "2px 5px", borderRadius: "4px",
@@ -281,7 +342,6 @@ export function AppUI() {
                     © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" style={{color: "#333", textDecoration: "none"}}>OpenStreetMap contributors</a>
                 </div>
 
-                {/* 2. Legende & Filter (Oben rechts) */}
                 <div style={{
                     position: "absolute", top: 10, right: 10,
                     background: "rgba(255,255,255,0.95)", padding: "10px", borderRadius: "8px",
