@@ -386,40 +386,36 @@ export function AppUI() {
                 </div>
 
                 <div style={{
-                    position: "absolute", top: 10, right: 10,
-                    background: "rgba(255,255,255,0.95)", padding: "10px", borderRadius: "8px",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.2)", fontSize: "11px", fontFamily: "sans-serif",
-                    zIndex: 1000, maxWidth: "140px",
-                    display: "flex", flexDirection: "column", gap: "8px"
+                    position: "absolute", top: 20, right: 20, // Mehr Abstand zum Rand
+                    background: "rgba(255,255,255,0.95)",
+                    padding: "16px", // Mehr Innenabstand (war 10px)
+                    borderRadius: "12px", // Etwas rundere Ecken
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    fontSize: "14px", // Größere Schrift (war 11px)
+                    fontFamily: "sans-serif",
+                    zIndex: 1000,
+                    width: "200px", // Breiter (war maxWidth 140px)
+                    display: "flex", flexDirection: "column", gap: "12px" // Mehr Abstand zwischen den Zeilen
                 }}>
-                    <div style={{display: "flex", flexDirection: "column", gap: "4px"}}>
-                        <div style={{fontWeight: "bold", marginBottom: 2}}>Distanz wählen:</div>
-                        <div style={{display: "flex", gap: "2px"}}>
-                            <button onClick={() => setActiveFilter("all")} style={{ flex: 1, padding: "4px", fontSize: "10px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", background: activeFilter === "all" ? "#003366" : "white", color: activeFilter === "all" ? "white" : "black" }}>Alle</button>
-                            <button onClick={() => setActiveFilter("volks")} style={{ flex: 1, padding: "4px", fontSize: "10px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", background: activeFilter === "volks" ? "#003366" : "white", color: activeFilter === "volks" ? "white" : "black" }}>Volks</button>
-                            <button onClick={() => setActiveFilter("olymp")} style={{ flex: 1, padding: "4px", fontSize: "10px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", background: activeFilter === "olymp" ? "#003366" : "white", color: activeFilter === "olymp" ? "white" : "black" }}>Olymp</button>
+                    <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                        <div style={{fontWeight: "bold", fontSize: "15px", marginBottom: 4}}>Distanz wählen:</div>
+                        <div style={{display: "flex", gap: "8px"}}> {/* Mehr Lücke zwischen Buttons */}
+                            {/* Buttons deutlich vergrößert */}
+                            <button onClick={() => setActiveFilter("all")} style={{ flex: 1, padding: "10px 5px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "all" ? "#003366" : "white", color: activeFilter === "all" ? "white" : "black" }}>Alle</button>
+                            <button onClick={() => setActiveFilter("volks")} style={{ flex: 1, padding: "10px 5px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "volks" ? "#003366" : "white", color: activeFilter === "volks" ? "white" : "black" }}>Volks</button>
+                            <button onClick={() => setActiveFilter("olymp")} style={{ flex: 1, padding: "10px 5px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "olymp" ? "#003366" : "white", color: activeFilter === "olymp" ? "white" : "black" }}>Olymp</button>
                         </div>
                     </div>
 
-                    <div style={{height: 1, background: "#ddd"}}></div>
+                    <div style={{height: 1, background: "#ddd", margin: "4px 0"}}></div>
 
                     <div>
-                        <div style={{marginBottom: 4, fontWeight: "bold"}}>Disziplinen:</div>
+                        <div style={{marginBottom: 8, fontWeight: "bold", fontSize: "15px"}}>Disziplinen:</div>
                         {LEGEND_ITEMS.map(item => (
-                            <div key={item.label} style={{ display: "flex", alignItems: "center", marginTop: 3 }}>
-                                <span style={{width: 10, height: 3, background: item.color, marginRight: 6, borderRadius: 2}}></span>
-                                {item.label}
-                            </div>
-                        ))}
-                    </div>
-
-                    <div style={{height: 1, background: "#ddd"}}></div>
-
-                    <div>
-                        {POINTS_CONFIG.map(p => (
-                            <div key={p.label} style={{display: "flex", alignItems: "center", marginTop: 3}}>
-                                <span style={{width: 8, height: 8, background: p.color, marginRight: 6, borderRadius: "50%", border: "1px solid rgba(0,0,0,0.1)"}}></span>
-                                {p.label}
+                            <div key={item.label} style={{ display: "flex", alignItems: "center", marginTop: 6 }}>
+                                {/* Striche dicker und länger gemacht */}
+                                <span style={{width: 24, height: 6, background: item.color, marginRight: 10, borderRadius: 3}}></span>
+                                <span style={{fontSize: "14px"}}>{item.label}</span>
                             </div>
                         ))}
                     </div>
