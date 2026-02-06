@@ -75,20 +75,20 @@ const getParticipantStyle = (name: string, distanzRaw: string) => {
     const fillColor = "#ffffff";
     const strokeColor = isVolks ? "#000000" : "#777777";
     const textColor = isVolks ? "#000000" : "#777777";
-    const textStroke = "#ffffff"; // Text Rand immer Weiß
+    const textStroke = "#ffffff";
 
     return new Style({
         image: new CircleStyle({
-            radius: 8,
+            radius: 6,
             fill: new Fill({ color: fillColor }),
             stroke: new Stroke({ color: strokeColor, width: 3 }),
         }),
         text: new Text({
             text: name,
-            offsetY: -18,
-            font: "bold 14px Roboto, sans-serif",
+            offsetY: -12,
+            font: "bold 12px Roboto, sans-serif",
             fill: new Fill({ color: textColor }),
-            stroke: new Stroke({ color: textStroke, width: 3 }),
+            stroke: new Stroke({ color: textStroke, width: 2 }),
         })
     });
 };
@@ -339,7 +339,7 @@ export function AppUI() {
             }
 
             if (isVisible) {
-                // Zeigen: Wir setzen den korrekten Style (Schwarz/Weiß) wieder
+                // Zeigen: Wir setzen den korrekten Style (Schwarz/Grau) wieder
                 feature.setStyle(getParticipantStyle(name, distRaw));
             } else {
                 // Verstecken: Wir setzen einen leeren Style -> Unsichtbar
@@ -347,7 +347,7 @@ export function AppUI() {
             }
         });
 
-    }, [activeFilter, isAuthenticated]); // Feuert jedes Mal, wenn Filter geändert wird
+    }, [activeFilter, isAuthenticated]);
 
     if (!isAuthenticated) {
         return (
