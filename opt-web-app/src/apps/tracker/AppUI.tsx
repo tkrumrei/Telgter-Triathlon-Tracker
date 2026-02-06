@@ -24,7 +24,7 @@ const EVENT_CODE = import.meta.env.VITE_EVENT_CODE;
 const LOGIN_DURATION = 1000 * 60 * 10;
 const STORAGE_KEY = "tri_login_timestamp";
 
-// Timeout Einstellung
+// Timeout Einstellung (z.B. 30 Min)
 const MARKER_TIMEOUT = 1000 * 60 * 30;
 
 const supabase = (supabaseUrl && supabaseKey)
@@ -37,6 +37,7 @@ interface Participant {
     latitude: number;
     longitude: number;
     last_updated: string;
+    distanz: string; // NEU: Distanz im Interface
 }
 
 const COLORS = {
@@ -64,6 +65,38 @@ const POINTS_CONFIG = [
     { url: "points/end_point.json", label: "ZIEL", color: "#000000", textColor: "#ffffff", radius: 10 }
 ];
 
+// --- STYLE HELPER: Bestimmt Farbe nach Distanz ---
+const getParticipantStyle = (name: string, distanzRaw: string) => {
+    // Sicherstellen, dass wir Kleinbuchstaben vergleichen ("V" vs "v")
+    const d = distanzRaw ? distanzRaw.toLowerCase() : "";
+
+    // Logik: Ist es Volksdistanz?
+    const isVolks = d.includes("volks") || d === "v";
+
+    // Farben setzen:
+    // Volks ("v") = Weißer Punkt (mit schwarzem Rand für Kontrast)
+    // Olymp ("o") = Schwarzer Punkt (mit weißem Rand für Kontrast)
+    const fillColor = isVolks ? "#ffffff" : "#000000";
+    const strokeColor = isVolks ? "#000000" : "#ffffff";
+    const textColor = "#000000"; // Text immer Schwarz
+    const textStroke = "#ffffff"; // Text Rand immer Weiß
+
+    return new Style({
+        image: new CircleStyle({
+            radius: 8,
+            fill: new Fill({ color: fillColor }),
+            stroke: new Stroke({ color: strokeColor, width: 3 }),
+        }),
+        text: new Text({
+            text: name,
+            offsetY: -18,
+            font: "bold 14px Roboto, sans-serif",
+            fill: new Fill({ color: textColor }),
+            stroke: new Stroke({ color: textStroke, width: 3 }),
+        })
+    });
+};
+
 export function AppUI() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
         if (!EVENT_CODE) return true;
@@ -81,10 +114,7 @@ export function AppUI() {
     const [errorMsg, setErrorMsg] = useState("");
 
     const mapRef = useRef<HTMLDivElement>(null);
-
-    // Wir nutzen das hier nur noch für den Cleanup-Intervall
     const featuresRef = useRef(new Map<string, Feature>());
-
     const routeLayersRef = useRef<VectorLayer<VectorSource>[]>([]);
 
     const handleLogin = () => {
@@ -109,23 +139,10 @@ export function AppUI() {
 
         // A. Participant Layer
         const participantSource = new VectorSource();
+        // WICHTIG: Hier keinen globalen Style mehr setzen, da jeder Punkt individuell ist!
         const participantLayer = new VectorLayer({
             source: participantSource,
-            zIndex: 100,
-            style: (feature) => new Style({
-                image: new CircleStyle({
-                    radius: 8,
-                    fill: new Fill({ color: "white" }),
-                    stroke: new Stroke({ color: "blue", width: 3 }),
-                }),
-                text: new Text({
-                    text: feature.get("name"),
-                    offsetY: -18,
-                    font: "bold 14px Roboto, sans-serif",
-                    fill: new Fill({ color: "#000" }),
-                    stroke: new Stroke({ color: "#fff", width: 3 }),
-                })
-            })
+            zIndex: 100
         });
 
         // B. Route Layers
@@ -199,47 +216,58 @@ export function AppUI() {
             const now = Date.now();
             const isTooOld = (now - lastUpdate) > MARKER_TIMEOUT;
 
-            // 2. FIX: Wir fragen direkt die Karte nach dem Feature via ID!
-            // Das verhindert das "Ghosting" Problem
+            // FIX: Direkt über Source gehen
             const existingFeature = participantSource.getFeatureById(p.id);
 
-            // A. Löschen (wenn zu alt)
+            // A. Löschen
             if (isTooOld) {
                 if (existingFeature) {
                     participantSource.removeFeature(existingFeature as Feature);
                 }
-                // Aus Ref löschen damit Cleanup sauber bleibt
                 featuresRef.current.delete(p.id);
                 return;
             }
 
             const coords = fromLonLat([p.longitude, p.latitude]);
 
-            // B. Updaten (wenn vorhanden)
+            // STYLE BERECHNEN: Hier holen wir Schwarz oder Weiß
+            const style = getParticipantStyle(p.name, p.distanz);
+
+            // B. Update
             if (existingFeature) {
-                // Wir nutzen direkt das Feature von der Karte -> Sofortiges Update!
                 (existingFeature.getGeometry() as Point).setCoordinates(coords);
                 existingFeature.set("last_updated_ts", lastUpdate);
 
-                // Ref synchron halten
+                // WICHTIG: Distanz im Feature speichern für den Filter später!
+                existingFeature.set("distanz", p.distanz);
+
+                // Style aktualisieren
+                // Hinweis: Der Filter-Effect unten wird dies ggf. sofort wieder unsichtbar machen,
+                // falls der Filter aktiv ist. Das ist okay.
+                existingFeature.setStyle(style);
+
                 featuresRef.current.set(p.id, existingFeature as Feature);
             } else {
-                // C. Neu erstellen
+                // C. Neu
                 const feature = new Feature({
                     geometry: new Point(coords),
                     name: p.name
                 });
 
-                // 3. FIX: ID setzen ist PFLICHT, damit getFeatureById oben funktioniert!
                 feature.setId(p.id);
                 feature.set("last_updated_ts", lastUpdate);
+
+                // WICHTIG: Distanz speichern
+                feature.set("distanz", p.distanz);
+
+                feature.setStyle(style);
 
                 participantSource.addFeature(feature);
                 featuresRef.current.set(p.id, feature);
             }
         };
 
-        // E. Data Fetching (Initial)
+        // E. Data Fetching
         const fetchInitialData = async () => {
             const { data } = await supabase.from("participants").select("*");
             if (data) {
@@ -248,7 +276,7 @@ export function AppUI() {
         };
         fetchInitialData();
 
-        // F. Realtime Subscription
+        // F. Realtime
         const channel = supabase
             .channel("tracking")
             .on("postgres_changes", { event: "UPDATE", schema: "public", table: "participants" },
@@ -256,22 +284,18 @@ export function AppUI() {
             )
             .subscribe();
 
-        // G. INTERVAL
+        // G. Interval Cleanup
         const cleanupInterval = setInterval(() => {
             const now = Date.now();
-
             featuresRef.current.forEach((_, id) => {
-                // Wir holen uns das Feature sicherheitshalber direkt von der Source
                 const feature = participantSource.getFeatureById(id);
                 if (feature) {
                     const ts = feature.get("last_updated_ts");
                     if (ts && (now - ts > MARKER_TIMEOUT)) {
                         participantSource.removeFeature(feature as Feature);
                         featuresRef.current.delete(id);
-                        console.log(`Teilnehmer ${id} ausgeblendet.`);
                     }
                 } else {
-                    // Falls es in Ref ist aber nicht mehr auf der Karte
                     featuresRef.current.delete(id);
                 }
             });
@@ -282,28 +306,52 @@ export function AppUI() {
             map.setTarget(undefined);
             supabase.removeChannel(channel);
             routeLayersRef.current = [];
-            // 4. FIX: Gedächtnis löschen für Dev-Mode
             featuresRef.current.clear();
         };
     }, [isAuthenticated]);
 
 
-    // --- EFFECT 2: FILTER LOGIK ---
+    // --- EFFECT 2: FILTER LOGIK (Routen UND Teilnehmer) ---
     useEffect(() => {
+        // 1. Routen filtern (wie bisher)
         routeLayersRef.current.forEach(layer => {
             const category = layer.get("category");
+            if (category === "common") layer.setOpacity(1);
+            else if (activeFilter === "all") layer.setOpacity(1);
+            else if (activeFilter === category) layer.setOpacity(1);
+            else layer.setOpacity(0.25);
+        });
 
-            if (category === "common") {
-                layer.setOpacity(1);
-            } else if (activeFilter === "all") {
-                layer.setOpacity(1);
-            } else if (activeFilter === category) {
-                layer.setOpacity(1);
+        // 2. Teilnehmer filtern (NEU!)
+        featuresRef.current.forEach((feature) => {
+            // Wir holen uns die gespeicherte Distanz aus dem Feature
+            const distRaw = feature.get("distanz");
+            const d = distRaw ? distRaw.toLowerCase() : "";
+            const name = feature.get("name");
+
+            // Prüfen, ob der Teilnehmer angezeigt werden soll
+            let isVisible = false;
+
+            if (activeFilter === "all") {
+                isVisible = true;
+            } else if (activeFilter === "volks") {
+                // Zeigen wenn "volks" oder "v"
+                if (d.includes("volks") || d === "v") isVisible = true;
+            } else if (activeFilter === "olymp") {
+                // Zeigen wenn "olymp" oder "o"
+                if (d.includes("olymp") || d === "o") isVisible = true;
+            }
+
+            if (isVisible) {
+                // Zeigen: Wir setzen den korrekten Style (Schwarz/Weiß) wieder
+                feature.setStyle(getParticipantStyle(name, distRaw));
             } else {
-                layer.setOpacity(0.25);
+                // Verstecken: Wir setzen einen leeren Style -> Unsichtbar
+                feature.setStyle(new Style({}));
             }
         });
-    }, [activeFilter, isAuthenticated]);
+
+    }, [activeFilter, isAuthenticated]); // Feuert jedes Mal, wenn Filter geändert wird
 
     if (!isAuthenticated) {
         return (
@@ -314,7 +362,6 @@ export function AppUI() {
                 <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <div style={{ background: "white", padding: "2.5rem", borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", width: "90%", maxWidth: "400px", textAlign: "center" }}>
                         <h2 style={{ marginTop: 0, color: "#333" }}>Event Zugang</h2>
-                        <p style={{ color: "#666", marginBottom: "20px" }}>Bitte gib den Code ein.</p>
                         <input type="text" placeholder="Code..." value={inputCode} onChange={e => setInputCode(e.target.value)} onKeyDown={handleKeyDown} style={{ width: "100%", padding: "12px", fontSize: "18px", textAlign: "center", borderRadius: "8px", border: "2px solid #ddd", marginBottom: "15px", boxSizing: "border-box", outline: "none" }} />
                         <button onClick={handleLogin} style={{ width: "100%", padding: "12px", fontSize: "16px", fontWeight: "bold", background: "#007bff", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>Starten</button>
                         {errorMsg && <p style={{ color: "red", marginTop: "15px", fontWeight: "bold" }}>{errorMsg}</p>}
