@@ -6,9 +6,9 @@ packages:
 # Shared version expressions (yaml anchors).
 # This is a yaml feature and is not interpreted by pnpm directly.
 __versions:
-  - &react_version ^19.2.0
-  - &core_packages_version ^4.3.0
-  - &ol_base_packages_version ^1.1.0
+  - &react_version 19.2.0
+  - &core_packages_version 4.3.0
+  - &ol_base_packages_version 1.1.0
 
 # https://pnpm.io/catalogs
 catalog:
@@ -133,6 +133,19 @@ overrides:
   # Ensure patched packages have the expected version (patch was tested with this version):
   "@ark-ui/react": "5.27.1"
   "react-select": "5.10.2"
+
+  # Keep Trails package family on the workspace baseline.
+  "@open-pioneer/base-theme": "4.3.0"
+  "@open-pioneer/core": "4.3.0"
+  "@open-pioneer/http": "4.3.0"
+  "@open-pioneer/react-utils": "4.3.0"
+  "@open-pioneer/reactivity": "4.3.0"
+  "@open-pioneer/runtime": "4.3.0"
+
+  # Keep central UI dependencies unified.
+  "@chakra-ui/react": "3.29.0"
+  react: "19.2.0"
+  "react-dom": "19.2.0"
 
 allowUnusedPatches: true
 ignorePatchFailures: false

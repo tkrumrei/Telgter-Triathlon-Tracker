@@ -1,0 +1,185 @@
+:root {
+    --tracker-blue: #003366;
+    --tracker-blue-hover: #002a52;
+    --tracker-panel-bg: rgba(255, 255, 255, 0.95);
+    --tracker-border: #cfd6dd;
+    --tracker-shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --tracker-shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --tracker-radius-panel: 12px;
+    --tracker-radius-button: 8px;
+}
+
+.tracker-main-root,
+.tracker-login-root {
+    width: 100%;
+    height: 100%;
+}
+
+.tracker-login-root {
+    background: #f4f6f8;
+}
+
+.tracker-header {
+    background: var(--tracker-blue);
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tracker-header-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.tracker-login-header {
+    background: var(--tracker-blue);
+    color: #fff;
+    box-shadow: var(--tracker-shadow-soft);
+}
+
+.tracker-login-center {
+    padding: 0 16px;
+}
+
+.tracker-login-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: var(--tracker-radius-panel);
+    background: #fff;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    padding: 40px;
+    gap: 16px;
+}
+
+.tracker-login-title {
+    margin-top: 0;
+    color: #333;
+}
+
+.tracker-login-input {
+    text-align: center;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: #ddd;
+}
+
+.tracker-login-input:focus-visible {
+    border-color: #007bff;
+    box-shadow: none;
+}
+
+.tracker-login-button {
+    background: #007bff;
+    color: #fff;
+    font-weight: 700;
+}
+
+.tracker-login-button:hover {
+    background: #0069d9;
+}
+
+.tracker-login-error {
+    color: #e53e3e;
+    margin-top: 4px;
+    font-weight: 700;
+}
+
+.tracker-panel {
+    background: var(--tracker-panel-bg);
+    border-radius: var(--tracker-radius-panel);
+    box-shadow: var(--tracker-shadow-panel);
+    width: 200px;
+    font-size: 14px;
+    padding: 16px;
+    gap: 8px;
+}
+
+.tracker-panel-title {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.tracker-panel-title-row {
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.tracker-panel-divider {
+    background: #ddd;
+    height: 1px;
+}
+
+.tracker-icon-button {
+    border-color: var(--tracker-border);
+    background: #fff;
+    color: #1f2a36;
+}
+
+.tracker-icon-button:hover {
+    background: #f7fafc;
+}
+
+.tracker-filter-button {
+    border-color: #ccc;
+    border-radius: 6px;
+    font-weight: 700;
+    flex: 1;
+    padding: 10px 6px;
+    height: auto;
+    font-size: 15px;
+}
+
+.tracker-filter-button[data-active="true"] {
+    background: var(--tracker-blue);
+    color: #fff;
+    border-color: var(--tracker-blue);
+}
+
+.tracker-filter-button[data-active="false"] {
+    background: #fff;
+    color: #000;
+}
+
+.tracker-filter-button[data-active="true"]:hover {
+    background: var(--tracker-blue-hover);
+}
+
+.tracker-filter-button[data-active="false"]:hover {
+    background: #f7fafc;
+}
+
+.tracker-legend-title {
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.tracker-legend-row {
+    align-items: center;
+    margin-top: 6px;
+}
+
+.tracker-legend-swatch {
+    width: 24px;
+    height: 6px;
+    margin-right: 10px;
+    border-radius: 3px;
+}
+
+.tracker-legend-label {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.tracker-map-loading {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background: #eef2f5;
+    color: #234;
+}
+
+.tracker-map-loading-text {
+    font-weight: 700;
+}

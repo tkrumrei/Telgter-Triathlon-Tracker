@@ -58,6 +58,7 @@
         "lint-staged": "catalog:",
         "prettier": "catalog:",
         "react": "catalog:",
+        "react-dom": "catalog:",
         "rimraf": "catalog:",
         "sass": "catalog:",
         "tsx": "catalog:",
