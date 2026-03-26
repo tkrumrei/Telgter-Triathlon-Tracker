@@ -3,4 +3,5 @@
 
 export { DistancePanel } from "./DistancePanel";
 export { LoginScreen } from "./LoginScreen";
+export { ParticipantsPanel } from "./ParticipantsPanel";
 export { TrackerHeader } from "./TrackerHeader";

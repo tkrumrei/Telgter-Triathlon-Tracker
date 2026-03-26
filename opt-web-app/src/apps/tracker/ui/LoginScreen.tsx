@@ -41,11 +41,12 @@ export function LoginScreen(props: LoginScreenProps) {
                     gap="4"
                 >
                     <Image
-                        src="/Logo_Telgter_Triathlon.png"
+                        src="./Logo_Telgter_Triathlon.png"
                         alt="Telgter Triathlon Logo"
                         h="100px"
                         w="auto"
                         objectFit="contain"
+                        borderRadius="12px"
                     />
 
                     <Heading className="tracker-login-title" size="md">

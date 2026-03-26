@@ -3,7 +3,7 @@
 
 import { MapAnchor, MapContainer, useMapModel } from "@open-pioneer/map";
 import { createClient } from "@supabase/supabase-js";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import BaseLayer from "ol/layer/Base";
@@ -12,14 +12,15 @@ import { fromLonLat } from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import { Circle as CircleStyle, Fill, Stroke, Style, Text as OlText } from "ol/style";
 import "ol/ol.css";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import {
     type DistanceFilter,
     MAP_ID,
     PARTICIPANT_LAYER_ID,
     ROUTES_CONFIG
 } from "./trackerConfig";
-import { DistancePanel, LoginScreen, TrackerHeader } from "./ui";
+import { DistancePanel, LoginScreen, ParticipantsPanel, TrackerHeader } from "./ui";
+import type { PanelParticipant } from "./ui/ParticipantsPanel";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
@@ -43,6 +44,12 @@ interface Participant {
 
 type ParticipantFeature = Feature<Point>;
 type ParticipantFeatureMap = Map<string, ParticipantFeature>;
+type ActiveParticipantMap = Map<string, PanelParticipant & { latitude: number; longitude: number }>;
+
+interface FollowableParticipant extends PanelParticipant {
+    latitude: number;
+    longitude: number;
+}
 
 function getParticipantStyle(name: string, distanzRaw: string): Style {
     const d = distanzRaw ? distanzRaw.toLowerCase() : "";
@@ -154,10 +161,15 @@ export function AppUI() {
 
     const [activeFilter, setActiveFilter] = useState<DistanceFilter>("all");
     const [isPanelOpen, setIsPanelOpen] = useState(true);
+    const [isParticipantsPanelOpen, setIsParticipantsPanelOpen] = useState(false);
+    const [followedParticipantId, setFollowedParticipantId] = useState<string | null>(null);
+    const [activeParticipants, setActiveParticipants] = useState<FollowableParticipant[]>([]);
     const [inputCode, setInputCode] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
     const featuresRef = useRef<ParticipantFeatureMap>(new Map<string, ParticipantFeature>());
+    const participantDataRef = useRef<ActiveParticipantMap>(new Map<string, FollowableParticipant>());
+    const followedParticipantIdRef = useRef<string | null>(null);
 
     const mapState = useMapModel(MAP_ID);
     const mapModel = mapState.map;
@@ -179,6 +191,48 @@ export function AppUI() {
         }
     };
 
+    const centerMapOnParticipant = useCallback(
+        (participant: FollowableParticipant, animationDuration = 350) => {
+            if (!mapModel) {
+                return;
+            }
+
+            mapModel.olView.animate({
+                center: fromLonLat([participant.longitude, participant.latitude]),
+                duration: animationDuration
+            });
+        },
+        [mapModel]
+    );
+
+    const handleFollowParticipant = (participantId: string) => {
+        const participant = participantDataRef.current.get(participantId);
+        if (!participant) {
+            return;
+        }
+
+        setFollowedParticipantId(participantId);
+        centerMapOnParticipant(participant, 450);
+    };
+
+    const handleStopFollowing = () => {
+        setFollowedParticipantId(null);
+    };
+
+    const openDistancePanel = () => {
+        setIsParticipantsPanelOpen(false);
+        setIsPanelOpen(true);
+    };
+
+    const openParticipantsPanel = () => {
+        setIsPanelOpen(false);
+        setIsParticipantsPanelOpen(true);
+    };
+
+    useEffect(() => {
+        followedParticipantIdRef.current = followedParticipantId;
+    }, [followedParticipantId]);
+
     useEffect(() => {
         if (!isAuthenticated || !supabase || !mapModel) {
             return;
@@ -189,6 +243,14 @@ export function AppUI() {
             return;
         }
         const features = featuresRef.current;
+        const participantData = participantDataRef.current;
+
+        const syncParticipantState = () => {
+            const sortedParticipants = Array.from(participantData.values()).sort((left, right) =>
+                left.name.localeCompare(right.name, "de")
+            );
+            setActiveParticipants(sortedParticipants);
+        };
 
         localStorage.setItem(STORAGE_KEY, Date.now().toString());
 
@@ -198,6 +260,9 @@ export function AppUI() {
                 participantSource.removeFeature(feature);
             }
             features.delete(participantId);
+            participantData.delete(participantId);
+            syncParticipantState();
+            setFollowedParticipantId((currentId) => (currentId === participantId ? null : currentId));
         };
 
         const updateOrAddMarker = (participant: Participant) => {
@@ -212,6 +277,30 @@ export function AppUI() {
             if (isTooOld) {
                 removeParticipantFeature(id);
                 return;
+            }
+
+            participantData.set(id, {
+                id,
+                name,
+                distanz,
+                latitude,
+                longitude,
+                lastUpdatedTs: lastUpdate
+            });
+            syncParticipantState();
+
+            if (followedParticipantIdRef.current === id) {
+                centerMapOnParticipant(
+                    {
+                        id,
+                        name,
+                        distanz,
+                        latitude,
+                        longitude,
+                        lastUpdatedTs: lastUpdate
+                    },
+                    250
+                );
             }
 
             const existingFeature = participantSource.getFeatureById(id);
@@ -282,8 +371,10 @@ export function AppUI() {
             void supabase.removeChannel(channel);
             participantSource.clear();
             features.clear();
+            participantData.clear();
+            setActiveParticipants([]);
         };
-    }, [isAuthenticated, mapModel]);
+    }, [centerMapOnParticipant, isAuthenticated, mapModel]);
 
     useEffect(() => {
         if (!isAuthenticated || !mapModel) {
@@ -293,6 +384,10 @@ export function AppUI() {
         applyRouteFilter(mapModel, activeFilter);
         applyParticipantFilter(featuresRef.current, activeFilter);
     }, [activeFilter, isAuthenticated, mapModel]);
+
+    const participantsForPanel = activeParticipants.filter((participant) =>
+        matchesDistanceFilter(participant.distanz, activeFilter)
+    );
 
     if (!isAuthenticated) {
         return (
@@ -313,14 +408,26 @@ export function AppUI() {
             <Box flex="1" position="relative">
                 {mapModel ? (
                     <MapContainer map={mapModel}>
-                        <MapAnchor position="top-right" horizontalGap={20} verticalGap={20}>
-                            <DistancePanel
-                                isOpen={isPanelOpen}
-                                activeFilter={activeFilter}
-                                onOpen={() => setIsPanelOpen(true)}
-                                onClose={() => setIsPanelOpen(false)}
-                                onSelectFilter={setActiveFilter}
-                            />
+                        <MapAnchor position="top-left" horizontalGap={20} verticalGap={20}>
+                            <VStack align="start" gap="2">
+                                <DistancePanel
+                                    isOpen={isPanelOpen}
+                                    activeFilter={activeFilter}
+                                    onOpen={openDistancePanel}
+                                    onClose={() => setIsPanelOpen(false)}
+                                    onSelectFilter={setActiveFilter}
+                                />
+
+                                <ParticipantsPanel
+                                    isOpen={isParticipantsPanelOpen}
+                                    participants={participantsForPanel}
+                                    followedParticipantId={followedParticipantId}
+                                    onOpen={openParticipantsPanel}
+                                    onClose={() => setIsParticipantsPanelOpen(false)}
+                                    onFollowParticipant={handleFollowParticipant}
+                                    onStopFollowing={handleStopFollowing}
+                                />
+                            </VStack>
                         </MapAnchor>
                     </MapContainer>
                 ) : (
