@@ -106,6 +106,7 @@ export function AppUI() {
     });
 
     const [activeFilter, setActiveFilter] = useState<"all" | "volks" | "olymp">("all");
+    const [isPanelOpen, setIsPanelOpen] = useState(true);
     const [inputCode, setInputCode] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -385,41 +386,92 @@ export function AppUI() {
                     © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" style={{color: "#333", textDecoration: "none"}}>OpenStreetMap contributors</a>
                 </div>
 
-                <div style={{
-                    position: "absolute", top: 20, right: 20, // Mehr Abstand zum Rand
-                    background: "rgba(255,255,255,0.95)",
-                    padding: "16px", // Mehr Innenabstand (war 10px)
-                    borderRadius: "12px", // Etwas rundere Ecken
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                    fontSize: "14px", // Größere Schrift (war 11px)
-                    fontFamily: "sans-serif",
-                    zIndex: 1000,
-                    width: "200px", // Breiter (war maxWidth 140px)
-                    display: "flex", flexDirection: "column", gap: "6px" // Mehr Abstand zwischen den Zeilen
-                }}>
-                    <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
-                        <div style={{fontWeight: "bold", fontSize: "15px", marginBottom: 4}}>Distanz wählen:</div>
-                        <div style={{display: "flex", gap: "8px"}}> {/* Mehr Lücke zwischen Buttons */}
-                            {/* Buttons deutlich vergrößert */}
-                            <button onClick={() => setActiveFilter("all")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "all" ? "#003366" : "white", color: activeFilter === "all" ? "white" : "black" }}>Alle</button>
-                            <button onClick={() => setActiveFilter("volks")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "volks" ? "#003366" : "white", color: activeFilter === "volks" ? "white" : "black" }}>Volks</button>
-                            <button onClick={() => setActiveFilter("olymp")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "olymp" ? "#003366" : "white", color: activeFilter === "olymp" ? "white" : "black" }}>Olymp</button>
+                {isPanelOpen ? (
+                    <div style={{
+                        position: "absolute", top: 20, right: 20,
+                        background: "rgba(255,255,255,0.95)",
+                        padding: "16px",
+                        borderRadius: "12px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                        fontSize: "14px",
+                        fontFamily: "sans-serif",
+                        zIndex: 1000,
+                        width: "200px",
+                        display: "flex", flexDirection: "column", gap: "6px"
+                    }}>
+                        <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                            <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px"}}>
+                                <div style={{fontWeight: "bold", fontSize: "15px"}}>Distanz wählen:</div>
+                                <button
+                                    type="button"
+                                    aria-label="Panel schließen"
+                                    onClick={() => setIsPanelOpen(false)}
+                                    style={{
+                                        width: "30px",
+                                        height: "30px",
+                                        border: "1px solid #cfd6dd",
+                                        borderRadius: "6px",
+                                        background: "white",
+                                        color: "#223",
+                                        fontSize: "20px",
+                                        lineHeight: 1,
+                                        cursor: "pointer",
+                                        padding: 0
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            <div style={{display: "flex", gap: "8px"}}>
+                                <button onClick={() => setActiveFilter("all")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "all" ? "#003366" : "white", color: activeFilter === "all" ? "white" : "black" }}>Alle</button>
+                                <button onClick={() => setActiveFilter("volks")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "volks" ? "#003366" : "white", color: activeFilter === "volks" ? "white" : "black" }}>Volks</button>
+                                <button onClick={() => setActiveFilter("olymp")} style={{ flex: 1, padding: "10px 5px", fontSize: "15px", fontWeight: "bold", cursor: "pointer", border: "1px solid #ccc", borderRadius: "6px", background: activeFilter === "olymp" ? "#003366" : "white", color: activeFilter === "olymp" ? "white" : "black" }}>Olymp</button>
+                            </div>
+                        </div>
+
+                        <div style={{height: 1, background: "#ddd", margin: "4px 0"}}></div>
+
+                        <div>
+                            <div style={{marginBottom: 8, fontWeight: "bold", fontSize: "15px"}}>Disziplinen:</div>
+                            {LEGEND_ITEMS.map(item => (
+                                <div key={item.label} style={{ display: "flex", alignItems: "center", marginTop: 6 }}>
+                                    <span style={{width: 24, height: 6, background: item.color, marginRight: 10, borderRadius: 3}}></span>
+                                    <span style={{fontSize: "14px", fontWeight: "bold"}}>{item.label}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
-
-                    <div style={{height: 1, background: "#ddd", margin: "4px 0"}}></div>
-
-                    <div>
-                        <div style={{marginBottom: 8, fontWeight: "bold", fontSize: "15px"}}>Disziplinen:</div>
-                        {LEGEND_ITEMS.map(item => (
-                            <div key={item.label} style={{ display: "flex", alignItems: "center", marginTop: 6 }}>
-                                {/* Striche dicker und länger gemacht */}
-                                <span style={{width: 24, height: 6, background: item.color, marginRight: 10, borderRadius: 3}}></span>
-                                <span style={{fontSize: "14px", fontWeight: "bold"}}>{item.label}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                ) : (
+                    <button
+                        type="button"
+                        aria-label="Panel öffnen"
+                        aria-expanded={isPanelOpen}
+                        onClick={() => setIsPanelOpen(true)}
+                        style={{
+                            position: "absolute",
+                            top: 20,
+                            right: 20,
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "10px",
+                            border: "1px solid #cfd6dd",
+                            background: "rgba(255,255,255,0.95)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "4px",
+                            cursor: "pointer",
+                            zIndex: 1000,
+                            padding: 0
+                        }}
+                    >
+                        <span style={{width: "18px", height: "2px", background: "#1f2a36", borderRadius: "1px", display: "block"}}></span>
+                        <span style={{width: "18px", height: "2px", background: "#1f2a36", borderRadius: "1px", display: "block"}}></span>
+                        <span style={{width: "18px", height: "2px", background: "#1f2a36", borderRadius: "1px", display: "block"}}></span>
+                    </button>
+                )}
             </div>
         </div>
     );
