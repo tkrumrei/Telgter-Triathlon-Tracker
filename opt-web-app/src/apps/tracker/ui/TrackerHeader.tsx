@@ -40,7 +40,7 @@ export function TrackerHeader(props: TrackerHeaderProps) {
             </Text>
 
             <Image
-                src="./Logo_Telgter_Triathlon.png"
+                src="./Logo_Telgter_Triathlon_bgremoved.png"
                 alt="Telgter Triathlon Logo"
                 h={{ base: "70%", md: "80%" }}
                 w="auto"
