@@ -107,49 +107,49 @@ export const FINISHERS: ReadonlyArray<FinisherEntry> = [
     {
         name: "Renè S.",
         distanz: "olymp",
-        finishTime: "",
+        finishTime: "03:22:52",
         year: 2024,
         teilnahmen: 2
     },
     {
         name: "Stian H.",
         distanz: "olymp",
-        finishTime: "",
+        finishTime: "02:58:00",
         year: 2024,
         teilnahmen: 1
     },
     {
         name: "Johannes W.",
         distanz: "olymp",
-        finishTime: "",
+        finishTime: "03:19:47",
         year: 2024,
         teilnahmen: 1
     },
     {
         name: "Tobias K.",
         distanz: "olymp",
-        finishTime: "",
+        finishTime: "03:24:27",
         year: 2024,
         teilnahmen: 1
     },
     {
         name: "Niklas K.",
         distanz: "olymp",
-        finishTime: "",
+        finishTime: "03:14:19",
         year: 2025,
         teilnahmen: 1
     },
     {
         name: "Zacharias S.",
         distanz: "olymp",
-        finishTime: "",
+        finishTime: "02:55:18",
         year: 2025,
         teilnahmen: 1
     },
     {
         name: "Tim L.",
         distanz: "olymp",
-        finishTime: "",
+        finishTime: "03:46:36",
         year: 2025,
         teilnahmen: 1
     },
