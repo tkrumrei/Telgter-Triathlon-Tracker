@@ -3,7 +3,7 @@
 
 import { MapAnchor, MapContainer, useMapModel } from "@open-pioneer/map";
 import { createClient } from "@supabase/supabase-js";
-import { Box, Flex, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Text, VStack } from "@chakra-ui/react";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import BaseLayer from "ol/layer/Base";
@@ -14,12 +14,13 @@ import { Circle as CircleStyle, Fill, Stroke, Style, Text as OlText } from "ol/s
 import "ol/ol.css";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import {
+    type DistanceCategory,
     type DistanceFilter,
     MAP_ID,
     PARTICIPANT_LAYER_ID,
     ROUTES_CONFIG
 } from "./trackerConfig";
-import { DistancePanel, LoginScreen, ParticipantsPanel, TrackerHeader } from "./ui";
+import { DistancePanel, InfoPanel, LoginScreen, ParticipantsPanel, TrackerHeader } from "./ui";
 import type { PanelParticipant } from "./ui/ParticipantsPanel";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -162,6 +163,8 @@ export function AppUI() {
     const [activeFilter, setActiveFilter] = useState<DistanceFilter>("all");
     const [isPanelOpen, setIsPanelOpen] = useState(true);
     const [isParticipantsPanelOpen, setIsParticipantsPanelOpen] = useState(false);
+    const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+    const [infoFilter, setInfoFilter] = useState<DistanceCategory>("volks");
     const [followedParticipantId, setFollowedParticipantId] = useState<string | null>(null);
     const [activeParticipants, setActiveParticipants] = useState<FollowableParticipant[]>([]);
     const [inputCode, setInputCode] = useState("");
@@ -407,29 +410,63 @@ export function AppUI() {
 
             <Box flex="1" position="relative">
                 {mapModel ? (
-                    <MapContainer map={mapModel}>
-                        <MapAnchor position="top-left" horizontalGap={20} verticalGap={20}>
-                            <VStack align="start" gap="2">
-                                <DistancePanel
-                                    isOpen={isPanelOpen}
-                                    activeFilter={activeFilter}
-                                    onOpen={openDistancePanel}
-                                    onClose={() => setIsPanelOpen(false)}
-                                    onSelectFilter={setActiveFilter}
-                                />
+                    <>
+                        <MapContainer map={mapModel}>
+                            {!isInfoPanelOpen && (
+                                <MapAnchor position="top-left" horizontalGap={20} verticalGap={20}>
+                                    <VStack align="start" gap="2">
+                                        <DistancePanel
+                                            isOpen={isPanelOpen}
+                                            activeFilter={activeFilter}
+                                            onOpen={openDistancePanel}
+                                            onClose={() => setIsPanelOpen(false)}
+                                            onSelectFilter={setActiveFilter}
+                                        />
 
-                                <ParticipantsPanel
-                                    isOpen={isParticipantsPanelOpen}
-                                    participants={participantsForPanel}
-                                    followedParticipantId={followedParticipantId}
-                                    onOpen={openParticipantsPanel}
-                                    onClose={() => setIsParticipantsPanelOpen(false)}
-                                    onFollowParticipant={handleFollowParticipant}
-                                    onStopFollowing={handleStopFollowing}
-                                />
-                            </VStack>
-                        </MapAnchor>
-                    </MapContainer>
+                                        <ParticipantsPanel
+                                            isOpen={isParticipantsPanelOpen}
+                                            participants={participantsForPanel}
+                                            followedParticipantId={followedParticipantId}
+                                            onOpen={openParticipantsPanel}
+                                            onClose={() => setIsParticipantsPanelOpen(false)}
+                                            onFollowParticipant={handleFollowParticipant}
+                                            onStopFollowing={handleStopFollowing}
+                                        />
+                                    </VStack>
+                                </MapAnchor>
+                            )}
+
+                            {!isInfoPanelOpen && (
+                                <MapAnchor position="top-right" horizontalGap={20} verticalGap={20}>
+                                    <IconButton
+                                        aria-label="Info-Panel öffnen"
+                                        aria-expanded={isInfoPanelOpen}
+                                        onClick={() => setIsInfoPanelOpen(true)}
+                                        className="tracker-info-open-button"
+                                        size="md"
+                                        variant="outline"
+                                        borderColor="#cfd6dd"
+                                        color="#1f2a36"
+                                        bg="rgba(255,255,255,0.95)"
+                                        boxShadow="0 4px 12px rgba(0,0,0,0.15)"
+                                        _hover={{ bg: "white" }}
+                                    >
+                                        <Text as="span" fontSize="18px" fontWeight="bold" lineHeight="1">
+                                            i
+                                        </Text>
+                                    </IconButton>
+                                </MapAnchor>
+                            )}
+
+                        </MapContainer>
+
+                        <InfoPanel
+                            isOpen={isInfoPanelOpen}
+                            activeFilter={infoFilter}
+                            onSelectFilter={setInfoFilter}
+                            onClose={() => setIsInfoPanelOpen(false)}
+                        />
+                    </>
                 ) : (
                     <Flex className="tracker-map-loading" w="100%" h="100%" align="center" justify="center" bg="#eef2f5" color="#234">
                         <Text className="tracker-map-loading-text" fontWeight="bold">Karte wird geladen ...</Text>

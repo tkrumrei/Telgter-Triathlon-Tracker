@@ -13,6 +13,23 @@ export const COLORS = {
 
 export type DistanceFilter = "all" | "volks" | "olymp";
 
+export type DistanceCategory = Exclude<DistanceFilter, "all">;
+
+export interface ScheduleEntry {
+    distanz: DistanceCategory;
+    startTime: string;
+    bikeArrivalEstimate: string;
+    finishArrivalEstimate: string;
+}
+
+export interface FinisherEntry {
+    name: string;
+    distanz: DistanceCategory;
+    finishTime: string;
+    year: number;
+    teilnahmen: number;
+}
+
 export type RouteCategory = "common" | "volks" | "olymp";
 
 export const ROUTES_CONFIG: ReadonlyArray<{
@@ -70,6 +87,80 @@ export const LEGEND_ITEMS = [
     { label: "Radfahren", color: COLORS.bike },
     { label: "Laufen", color: COLORS.run }
 ] as const;
+
+export const SCHEDULE_TIMES: ReadonlyArray<ScheduleEntry> = [
+    {
+        distanz: "volks",
+        startTime: "08:30",
+        bikeArrivalEstimate: "09:30",
+        finishArrivalEstimate: "10:00"
+    },
+    {
+        distanz: "olymp",
+        startTime: "08:15",
+        bikeArrivalEstimate: "10:00",
+        finishArrivalEstimate: "11:00"
+    }
+];
+
+export const FINISHERS: ReadonlyArray<FinisherEntry> = [
+    {
+        name: "Renè S.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2024,
+        teilnahmen: 2
+    },
+    {
+        name: "Stian H.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2024,
+        teilnahmen: 1
+    },
+    {
+        name: "Johannes W.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2024,
+        teilnahmen: 1
+    },
+    {
+        name: "Tobias K.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2024,
+        teilnahmen: 1
+    },
+    {
+        name: "Niklas K.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2025,
+        teilnahmen: 1
+    },
+    {
+        name: "Zacharias S.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2025,
+        teilnahmen: 1
+    },
+    {
+        name: "Tim L.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2025,
+        teilnahmen: 1
+    },
+    {
+        name: "Dominic K.",
+        distanz: "olymp",
+        finishTime: "",
+        year: 2024,
+        teilnahmen: 1
+    }
+];
 
 export const POINTS_CONFIG: ReadonlyArray<{
     id: string;
