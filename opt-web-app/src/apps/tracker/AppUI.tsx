@@ -55,10 +55,10 @@ function getParticipantStyle(name: string, distanzRaw: string): Style {
     const d = distanzRaw ? distanzRaw.toLowerCase() : "";
     const isVolks = d.includes("volks") || d === "v";
 
-    const fillColor = "#ffffff";
-    const strokeColor = isVolks ? "#000000" : "#777777";
-    const textColor = isVolks ? "#000000" : "#777777";
-    const textStroke = "#ffffff";
+    const fillColor = isVolks ? "#ffffff" : "#bedeff";
+    const strokeColor = isVolks ? "#000000" : "#203e98";
+    const textColor = isVolks ? "#000000" : "#213980";
+    const textStroke = isVolks ? "#ffffff" : "#bedeff";
 
     return new Style({
         image: new CircleStyle({
