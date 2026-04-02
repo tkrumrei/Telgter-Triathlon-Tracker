@@ -24,14 +24,6 @@ function getFilterLabel(filter: DistanceCategory): string {
     return "Olympisch";
 }
 
-function getDistanceLabel(distanz: DistanceCategory): string {
-    if (distanz === "volks") {
-        return "Volks";
-    }
-
-    return "Olymp";
-}
-
 function toSeconds(time: string): number {
     if (!time.trim()) {
         return Number.POSITIVE_INFINITY;
@@ -291,7 +283,7 @@ export function InfoPanel(props: InfoPanelProps) {
                                 display="grid"
                                 gridTemplateColumns={{
                                     base: "minmax(126px, 1.5fr) minmax(82px, 1fr) minmax(64px, 0.8fr) minmax(82px, 0.9fr)",
-                                    md: "70px minmax(210px, 1.6fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(100px, 0.8fr) minmax(140px, 1fr)"
+                                    md: "70px minmax(240px, 1.8fr) minmax(130px, 1fr) minmax(110px, 0.8fr) minmax(150px, 1fr)"
                                 }}
                                 columnGap={{ base: "8px", md: "30px" }}
                                 rowGap="12px"
@@ -303,9 +295,6 @@ export function InfoPanel(props: InfoPanelProps) {
                                     #
                                 </Text>
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center">Name</Text>
-                                <Text fontWeight="bold" color="#1f3c5e" textAlign="center" display={{ base: "none", md: "block" }}>
-                                    Distanz
-                                </Text>
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center">Bestzeit</Text>
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
                                     Jahr
@@ -329,9 +318,6 @@ export function InfoPanel(props: InfoPanelProps) {
                                             {index + 1}
                                         </Text>,
                                         <Text key={`${entry.name}-${entry.year}-name`} fontWeight="bold" textAlign="center">{entry.name}</Text>,
-                                        <Text key={`${entry.name}-${entry.year}-distanz`} textAlign="center" display={{ base: "none", md: "block" }}>
-                                            {getDistanceLabel(entry.distanz)}
-                                        </Text>,
                                         <Text key={`${entry.name}-${entry.year}-zeit`} textAlign="center">{entry.finishTime}</Text>,
                                         <Text key={`${entry.name}-${entry.year}-year`} textAlign="center">
                                             {entry.year}
