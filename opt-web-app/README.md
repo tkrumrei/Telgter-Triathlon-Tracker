@@ -1,43 +1,64 @@
 # 🏊🚴🏃 Telgter Triathlon - Live Web-App
 
-Dies ist die Zuschauer-Webanwendung für den 3. Telgter Triathlon. Sie basiert auf **React**, **OpenLayers** und **Supabase** und ermöglicht es Zuschauern, die Positionen der Athleten in Echtzeit auf einer Karte zu verfolgen.
+Dies ist die technische Dokumentation der Zuschauer-Webanwendung für den Telgter
+Triathlon. Die Anwendung basiert auf **React**, **Supabase**, **OpenLayers** und dem
+**Open Pioneer Trails Framework**.
 
-## ✨ Features
+## ✨ Funktionen der Kartenanwendung
 
-* **📡 Echtzeit-Tracking:** Positionen aktualisieren sich live via Supabase Realtime (kein Neuladen nötig).
-* **🗺️ Interaktive Karte:** Basierend auf OpenStreetMap und OpenLayers.
-* **🔍 Smarte Filter:** Zuschauer können nach Distanz filtern:
-    * *Volksdistanz* (⚪ Weiße Punkte)
-    * *Olympische Distanz* (⚫ Schwarze Punkte)
-* **🧹 Auto-Cleanup:** Teilnehmer, die länger als 30 Minuten kein Signal gesendet haben (z.B. im Ziel), werden automatisch von der Karte entfernt.
-* **📱 Mobile-First UI:** Vergrößerte Bedienelemente für einfache Nutzung auf Smartphones.
+- **📡 Echtzeit-Tracking:** Positionen werden live über Supabase Realtime aktualisiert.
+- **🗺️ Interaktive Karte:** Darstellung auf OpenStreetMap mit OpenLayers.
+- **🔍 Distanz-Filter:** Umschalten zwischen Volksdistanz, olympischer Distanz und "alle".
+- **🔐 Login-Seite mit Event-Zugangscode:** Zugriff auf die Live-Ansicht erst nach Code-Eingabe.
+- **👤 Aktive Athlet:innen folgen:** Athlet:innen im Panel auswählen und Karte automatisch nachführen.
+- **ℹ️ Info-Panel:** Renninfos, Distanzen und Finisher-Ansicht direkt in der Web-App.
+- **🧹 Auto-Cleanup:** Veraltete Marker werden nach einem Timeout automatisch entfernt.
+- **💻📱 Plattformübergreifend:** Bedienelemente und Panels funktionieren auf Smartphone und Desktop.
 
 ## 🚀 Quick Start
 
-Stelle sicher, dass du [Node.js](https://nodejs.org/) und [pnpm](https://pnpm.io/) installiert hast.
+Voraussetzungen:
 
-1.  **In den Ordner wechseln:**
-    ```bash
-    cd opt-web-app
-    ```
+- [Node.js](https://nodejs.org/) `>= 20`
+- [pnpm](https://pnpm.io/) `>= 10`
 
-2.  **Abhängigkeiten installieren:**
-    ```bash
-    pnpm install
-    ```
+1. In den Ordner wechseln:
 
-3.  **Entwicklungsserver starten:**
-    ```bash
-    pnpm dev
-    ```
-    Die App läuft dann meist unter `http://localhost:5173`.
+```bash
+cd opt-web-app
+```
+
+2. Abhängigkeiten installieren:
+
+```bash
+pnpm install
+```
+
+3. Entwicklungsserver starten:
+
+```bash
+pnpm dev
+```
+
+Die App läuft danach in der Regel unter `http://localhost:5173`.
 
 ## ⚙️ Konfiguration
 
-### Umgebungsvariablen (.env)
-Erstelle eine Datei namens `.env.local` im Hauptverzeichnis von `opt-web-app`, falls noch nicht vorhanden. Sie muss folgende Schlüssel enthalten:
+### Umgebungsvariablen
+
+Lege eine Datei `opt-web-app/.env.local` an (falls sie noch nicht existiert):
 
 ```env
 VITE_SUPABASE_URL=deine_supabase_url
 VITE_SUPABASE_KEY=dein_supabase_anon_key
 VITE_EVENT_CODE=dein_zugangscode
+```
+
+- `VITE_SUPABASE_URL`: URL deines Supabase-Projekts
+- `VITE_SUPABASE_KEY`: anonymer Public Key der Web-App
+- `VITE_EVENT_CODE`: Zugangscode fuer die Event-Freigabe in der UI
+
+## Weitere Doku im Repository
+
+- Event-Ueberblick: `../README.md`
+- Athlet:innen-Einrichtung (Traccar Client): `../mobile-app/README.md`
