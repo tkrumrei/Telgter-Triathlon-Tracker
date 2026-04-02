@@ -19,10 +19,10 @@ export class MapConfigProviderImpl implements MapConfigProvider {
             initialView: {
                 kind: "position",
                 center: {
-                    x: 866653,
-                    y: 6793206
+                    x: 866500,
+                    y: 6796200
                 },
-                zoom: 14
+                zoom: 14.3
             },
             layers: [
                 layerFactory.create({
