@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Flex, Image, Text } from "@chakra-ui/react";
+import { useIntl } from "open-pioneer:react-hooks";
 
 interface TrackerHeaderProps {
     title?: string;
 }
 
 export function TrackerHeader(props: TrackerHeaderProps) {
-    const title = props.title ?? "Triathlon Tracker";
+    const intl = useIntl();
+    const title = props.title ?? intl.formatMessage({ id: "header.title" });
 
     return (
         <Flex
@@ -41,7 +43,7 @@ export function TrackerHeader(props: TrackerHeaderProps) {
 
             <Image
                 src="./Logo_Telgter_Triathlon_bgremoved.png"
-                alt="Telgter Triathlon Logo"
+                alt={intl.formatMessage({ id: "header.logoAlt" })}
                 h={{ base: "70%", md: "80%" }}
                 w="auto"
                 objectFit="contain"

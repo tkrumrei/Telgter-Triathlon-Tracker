@@ -9,8 +9,9 @@ import "./app.css";
 const Element = createCustomElement({
     component: AppUI,
     appMetadata,
-    config: {
-        // Hier könnten Konfigs rein, brauchen wir aber gerade nicht
+    resolveConfig() {
+        const lang = new URLSearchParams(window.location.search).get("lang");
+        return Promise.resolve(lang ? { locale: lang } : undefined);
     }
 });
 

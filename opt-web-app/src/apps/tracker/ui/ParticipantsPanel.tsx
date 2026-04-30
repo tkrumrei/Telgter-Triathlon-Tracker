@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Box, Button, HStack, IconButton, Input, Text, VStack } from "@chakra-ui/react";
+import { useIntl } from "open-pioneer:react-hooks";
 import { useMemo, useState } from "react";
+import type { PackageIntl } from "@open-pioneer/runtime";
 
 export interface PanelParticipant {
     id: string;
@@ -21,25 +23,25 @@ interface ParticipantsPanelProps {
     onStopFollowing: () => void;
 }
 
-function formatLastUpdated(lastUpdatedTs: number): string {
+function formatLastUpdated(lastUpdatedTs: number, intl: PackageIntl): string {
     const deltaSeconds = Math.max(0, Math.floor((Date.now() - lastUpdatedTs) / 1000));
     if (deltaSeconds < 60) {
-        return `vor ${deltaSeconds}s`;
+        return intl.formatMessage({ id: "participantsPanel.lastUpdated.seconds" }, { n: deltaSeconds });
     }
 
     const deltaMinutes = Math.floor(deltaSeconds / 60);
-    return `vor ${deltaMinutes}m`;
+    return intl.formatMessage({ id: "participantsPanel.lastUpdated.minutes" }, { n: deltaMinutes });
 }
 
-function formatDistanceLabel(distanzRaw: string): string {
+function formatDistanceLabel(distanzRaw: string, intl: PackageIntl): string {
     const normalized = distanzRaw.trim().toLowerCase();
 
     if (normalized === "v" || normalized.includes("volks")) {
-        return "Volks";
+        return intl.formatMessage({ id: "participantsPanel.distance.volks" });
     }
 
     if (normalized === "o" || normalized.includes("olymp")) {
-        return "Olymp";
+        return intl.formatMessage({ id: "participantsPanel.distance.olymp" });
     }
 
     return distanzRaw;
@@ -55,6 +57,7 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
         onFollowParticipant,
         onStopFollowing
     } = props;
+    const intl = useIntl();
     const [participantSearch, setParticipantSearch] = useState("");
 
     const filteredParticipants = useMemo(() => {
@@ -79,7 +82,7 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
     if (!isOpen) {
         return (
             <IconButton
-                aria-label="Teilnehmer-Panel öffnen"
+                aria-label={intl.formatMessage({ id: "participantsPanel.openButtonLabel" })}
                 aria-expanded={isOpen}
                 onClick={onOpen}
                 className="tracker-icon-button"
@@ -111,10 +114,10 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
         >
             <HStack justify="space-between" gap="2">
                 <Text fontWeight="bold" fontSize="15px" color="#1f2a36">
-                    Teilnehmer ({participants.length})
+                    {intl.formatMessage({ id: "participantsPanel.title" }, { count: participants.length })}
                 </Text>
                 <IconButton
-                    aria-label="Teilnehmer-Panel schließen"
+                    aria-label={intl.formatMessage({ id: "participantsPanel.closeButtonLabel" })}
                     onClick={onClose}
                     className="tracker-icon-button"
                     size="sm"
@@ -133,13 +136,16 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
 
             {followedParticipantName && (
                 <Text fontSize="12px" color="#556" px="1">
-                    Folge aktiv: {followedParticipantName}
+                    {intl.formatMessage(
+                        { id: "participantsPanel.followActive" },
+                        { name: followedParticipantName }
+                    )}
                 </Text>
             )}
 
             <Input
                 size="sm"
-                placeholder="Teilnehmer suchen..."
+                placeholder={intl.formatMessage({ id: "participantsPanel.searchPlaceholder" })}
                 value={participantSearch}
                 onChange={(event) => setParticipantSearch(event.target.value)}
                 bg="white"
@@ -150,7 +156,7 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
                 <VStack align="stretch" gap="1.5">
                     {filteredParticipants.length === 0 ? (
                         <Text fontSize="12px" color="#556" p="2">
-                            Keine aktiven Teilnehmer gefunden.
+                            {intl.formatMessage({ id: "participantsPanel.noResults" })}
                         </Text>
                     ) : (
                         filteredParticipants.map((participant) => {
@@ -172,7 +178,7 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
                                             {participant.name}
                                         </Text>
                                         <Text fontSize="11px" color="#667">
-                                            {formatDistanceLabel(participant.distanz)} · {formatLastUpdated(participant.lastUpdatedTs)}
+                                            {formatDistanceLabel(participant.distanz, intl)} · {formatLastUpdated(participant.lastUpdatedTs, intl)}
                                         </Text>
                                     </VStack>
 
@@ -192,7 +198,9 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
                                             onFollowParticipant(participant.id);
                                         }}
                                     >
-                                        {isFollowed ? "✕" : "Folgen"}
+                                        {isFollowed
+                                            ? intl.formatMessage({ id: "participantsPanel.stopFollowButton" })
+                                            : intl.formatMessage({ id: "participantsPanel.followButton" })}
                                     </Button>
                                 </HStack>
                             );

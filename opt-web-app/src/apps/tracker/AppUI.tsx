@@ -4,6 +4,7 @@
 import { MapAnchor, MapContainer, useMapModel } from "@open-pioneer/map";
 import { createClient } from "@supabase/supabase-js";
 import { Box, Flex, IconButton, Text, VStack } from "@chakra-ui/react";
+import { useIntl } from "open-pioneer:react-hooks";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import BaseLayer from "ol/layer/Base";
@@ -170,6 +171,8 @@ export function AppUI() {
     const [inputCode, setInputCode] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
+    const intl = useIntl();
+
     const featuresRef = useRef<ParticipantFeatureMap>(new Map<string, ParticipantFeature>());
     const participantDataRef = useRef<ActiveParticipantMap>(new Map<string, FollowableParticipant>());
     const followedParticipantIdRef = useRef<string | null>(null);
@@ -185,7 +188,7 @@ export function AppUI() {
             return;
         }
 
-        setErrorMsg("❌ Ungültiger Code");
+        setErrorMsg(intl.formatMessage({ id: "login.invalidCode" }));
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -439,7 +442,7 @@ export function AppUI() {
                             {!isInfoPanelOpen && (
                                 <MapAnchor position="top-right" horizontalGap={20} verticalGap={20}>
                                     <IconButton
-                                        aria-label="Info-Panel öffnen"
+                                        aria-label={intl.formatMessage({ id: "map.infoButtonLabel" })}
                                         aria-expanded={isInfoPanelOpen}
                                         onClick={() => setIsInfoPanelOpen(true)}
                                         className="tracker-info-open-button"
@@ -469,7 +472,7 @@ export function AppUI() {
                     </>
                 ) : (
                     <Flex className="tracker-map-loading" w="100%" h="100%" align="center" justify="center" bg="#eef2f5" color="#234">
-                        <Text className="tracker-map-loading-text" fontWeight="bold">Karte wird geladen ...</Text>
+                        <Text className="tracker-map-loading-text" fontWeight="bold">{intl.formatMessage({ id: "map.loading" })}</Text>
                     </Flex>
                 )}
             </Box>

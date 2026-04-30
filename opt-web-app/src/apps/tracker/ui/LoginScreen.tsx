@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Box, Button, Flex, Heading, Image, Input, Text, VStack } from "@chakra-ui/react";
+import { useIntl } from "open-pioneer:react-hooks";
 import type { KeyboardEvent } from "react";
 
 interface LoginScreenProps {
@@ -14,6 +15,7 @@ interface LoginScreenProps {
 
 export function LoginScreen(props: LoginScreenProps) {
     const { inputCode, errorMsg, onCodeChange, onKeyDown, onLogin } = props;
+    const intl = useIntl();
 
     return (
         <Flex className="tracker-login-root" direction="column" w="100%" h="100%" bg="#f4f6f8">
@@ -26,7 +28,7 @@ export function LoginScreen(props: LoginScreenProps) {
                 textAlign="center"
             >
                 <Heading m="0" size="lg" fontWeight="bold">
-                    3. Telgter Triathlon
+                    {intl.formatMessage({ id: "login.eventTitle" })}
                 </Heading>
             </Box>
 
@@ -42,7 +44,7 @@ export function LoginScreen(props: LoginScreenProps) {
                 >
                     <Image
                         src="./Logo_Telgter_Triathlon.png"
-                        alt="Telgter Triathlon Logo"
+                        alt={intl.formatMessage({ id: "login.logoAlt" })}
                         h="100px"
                         w="auto"
                         objectFit="contain"
@@ -50,13 +52,13 @@ export function LoginScreen(props: LoginScreenProps) {
                     />
 
                     <Heading className="tracker-login-title" size="md">
-                        Event Zugang
+                        {intl.formatMessage({ id: "login.heading" })}
                     </Heading>
 
                     <Input
                         className="tracker-login-input"
                         type="text"
-                        placeholder="Code..."
+                        placeholder={intl.formatMessage({ id: "login.codePlaceholder" })}
                         value={inputCode}
                         onChange={(e) => onCodeChange(e.target.value)}
                         onKeyDown={onKeyDown}
@@ -64,7 +66,7 @@ export function LoginScreen(props: LoginScreenProps) {
                     />
 
                     <Button onClick={onLogin} w="100%" size="lg" className="tracker-login-button">
-                        Starten
+                        {intl.formatMessage({ id: "login.startButton" })}
                     </Button>
 
                     {errorMsg && <Text className="tracker-login-error">{errorMsg}</Text>}

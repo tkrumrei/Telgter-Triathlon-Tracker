@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Box, Button, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
+import { useIntl } from "open-pioneer:react-hooks";
 import { LEGEND_ITEMS, type DistanceFilter } from "../trackerConfig";
 
 interface DistancePanelProps {
@@ -48,11 +49,12 @@ function FilterButton(props: FilterButtonProps) {
 
 export function DistancePanel(props: DistancePanelProps) {
     const { isOpen, activeFilter, onOpen, onClose, onSelectFilter } = props;
+    const intl = useIntl();
 
     if (!isOpen) {
         return (
             <IconButton
-                aria-label="Panel öffnen"
+                aria-label={intl.formatMessage({ id: "distancePanel.openButtonLabel" })}
                 aria-expanded={isOpen}
                 onClick={onOpen}
                 className="tracker-icon-button"
@@ -112,10 +114,10 @@ export function DistancePanel(props: DistancePanelProps) {
                 <VStack align="stretch" gap="2">
                     <HStack className="tracker-panel-title-row" justify="space-between" gap="2">
                         <Text className="tracker-panel-title" fontWeight="bold" fontSize="15px">
-                            Distanz wählen:
+                            {intl.formatMessage({ id: "distancePanel.title" })}
                         </Text>
                         <IconButton
-                            aria-label="Panel schließen"
+                            aria-label={intl.formatMessage({ id: "distancePanel.closeButtonLabel" })}
                             onClick={onClose}
                             className="tracker-icon-button"
                             size="sm"
@@ -134,13 +136,13 @@ export function DistancePanel(props: DistancePanelProps) {
 
                     <HStack gap="2">
                         <FilterButton value="all" activeFilter={activeFilter} onSelect={onSelectFilter}>
-                            Alle
+                            {intl.formatMessage({ id: "distancePanel.filter.all" })}
                         </FilterButton>
                         <FilterButton value="volks" activeFilter={activeFilter} onSelect={onSelectFilter}>
-                            Volks
+                            {intl.formatMessage({ id: "distancePanel.filter.volks" })}
                         </FilterButton>
                         <FilterButton value="olymp" activeFilter={activeFilter} onSelect={onSelectFilter}>
-                            Olymp
+                            {intl.formatMessage({ id: "distancePanel.filter.olymp" })}
                         </FilterButton>
                     </HStack>
                 </VStack>
@@ -149,7 +151,7 @@ export function DistancePanel(props: DistancePanelProps) {
 
                 <Box>
                     <Text className="tracker-legend-title" mb="2" fontWeight="bold" fontSize="15px">
-                        Disziplinen:
+                        {intl.formatMessage({ id: "distancePanel.legend.title" })}
                     </Text>
                     {LEGEND_ITEMS.map((item) => (
                         <HStack key={item.label} className="tracker-legend-row" mt="1.5" align="center">

@@ -1,5 +1,70 @@
-# at least one empty yaml file must exist for each supported language
-# (might be empty if all messages are defined in the packages used by this app)
+# English translations
 messages:
-  heading: Empty App
-  text: This is an empty app.
+  # TrackerHeader
+  header.title: "Triathlon Tracker"
+  header.logoAlt: "Telgte Triathlon Logo"
+
+  # LoginScreen
+  login.eventTitle: "3rd Telgte Triathlon"
+  login.logoAlt: "Telgte Triathlon Logo"
+  login.heading: "Event Access"
+  login.codePlaceholder: "Code..."
+  login.startButton: "Start"
+  login.invalidCode: "❌ Invalid code"
+
+  # AppUI / Map
+  map.loading: "Loading map ..."
+  map.infoButtonLabel: "Open info panel"
+
+  # DistancePanel
+  distancePanel.openButtonLabel: "Open panel"
+  distancePanel.closeButtonLabel: "Close panel"
+  distancePanel.title: "Select distance:"
+  distancePanel.filter.all: "All"
+  distancePanel.filter.volks: "Sprint"
+  distancePanel.filter.olymp: "Olympic"
+  distancePanel.legend.title: "Disciplines:"
+
+  # ParticipantsPanel
+  participantsPanel.openButtonLabel: "Open participants panel"
+  participantsPanel.closeButtonLabel: "Close participants panel"
+  participantsPanel.title: "Participants ({count})"
+  participantsPanel.followActive: "Following: {name}"
+  participantsPanel.searchPlaceholder: "Search participants..."
+  participantsPanel.noResults: "No active participants found."
+  participantsPanel.followButton: "Follow"
+  participantsPanel.stopFollowButton: "✕"
+  participantsPanel.lastUpdated.seconds: "{n}s ago"
+  participantsPanel.lastUpdated.minutes: "{n}m ago"
+  participantsPanel.distance.volks: "Sprint"
+  participantsPanel.distance.olymp: "Olympic"
+
+  # InfoPanel
+  infoPanel.dialogLabel: "Info Panel"
+  infoPanel.closeButtonLabel: "Close info panel"
+  infoPanel.tabListLabel: "Select view"
+  infoPanel.tab.race: "Race Info"
+  infoPanel.tab.finishers: "Finishers"
+  infoPanel.schedule.title: "Schedule"
+  infoPanel.schedule.col.timepoint: "Time"
+  infoPanel.schedule.col.volks: "Sprint"
+  infoPanel.schedule.col.olymp: "Olympic"
+  infoPanel.schedule.row.swimStart: "Pool start"
+  infoPanel.schedule.row.bikeArrival: "Est. bike finish"
+  infoPanel.schedule.row.finish: "Est. finish"
+  infoPanel.distances.title: "Race Distances"
+  infoPanel.distances.volks.title: "Sprint Distance"
+  infoPanel.distances.volks.description: "500m Swim | 20km Bike | 5km Run"
+  infoPanel.distances.olymp.title: "Olympic Distance"
+  infoPanel.distances.olymp.description: "1500m Swim | 40km Bike | 10km Run"
+  infoPanel.finishers.title: "Finishers"
+  infoPanel.finishers.filter.volks: "Sprint"
+  infoPanel.finishers.filter.olympisch: "Olympic"
+  infoPanel.finishers.col.rank: "#"
+  infoPanel.finishers.col.name: "Name"
+  infoPanel.finishers.col.bestTime: "Best Time"
+  infoPanel.finishers.col.year: "Year"
+  infoPanel.finishers.col.participations: "Participations"
+  infoPanel.finishers.col.participationsShort: "Parts."
+  infoPanel.finishers.noResults: "No finishers for the selected distance."
+  infoPanel.finishers.dnf: "DNF"

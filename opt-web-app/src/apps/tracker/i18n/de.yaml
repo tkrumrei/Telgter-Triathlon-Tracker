@@ -1,0 +1,70 @@
+# Sprachdatei für die Tracker-App (Deutsch)
+messages:
+  # TrackerHeader
+  header.title: "Triathlon Tracker"
+  header.logoAlt: "Telgter Triathlon Logo"
+
+  # LoginScreen
+  login.eventTitle: "3. Telgter Triathlon"
+  login.logoAlt: "Telgter Triathlon Logo"
+  login.heading: "Event Zugang"
+  login.codePlaceholder: "Code..."
+  login.startButton: "Starten"
+  login.invalidCode: "❌ Ungültiger Code"
+
+  # AppUI / Karte
+  map.loading: "Karte wird geladen ..."
+  map.infoButtonLabel: "Info-Panel öffnen"
+
+  # DistancePanel
+  distancePanel.openButtonLabel: "Panel öffnen"
+  distancePanel.closeButtonLabel: "Panel schließen"
+  distancePanel.title: "Distanz wählen:"
+  distancePanel.filter.all: "Alle"
+  distancePanel.filter.volks: "Volks"
+  distancePanel.filter.olymp: "Olymp"
+  distancePanel.legend.title: "Disziplinen:"
+
+  # ParticipantsPanel
+  participantsPanel.openButtonLabel: "Teilnehmer-Panel öffnen"
+  participantsPanel.closeButtonLabel: "Teilnehmer-Panel schließen"
+  participantsPanel.title: "Teilnehmer ({count})"
+  participantsPanel.followActive: "Folge aktiv: {name}"
+  participantsPanel.searchPlaceholder: "Teilnehmer suchen..."
+  participantsPanel.noResults: "Keine aktiven Teilnehmer gefunden."
+  participantsPanel.followButton: "Folgen"
+  participantsPanel.stopFollowButton: "✕"
+  participantsPanel.lastUpdated.seconds: "vor {n}s"
+  participantsPanel.lastUpdated.minutes: "vor {n}m"
+  participantsPanel.distance.volks: "Volks"
+  participantsPanel.distance.olymp: "Olymp"
+
+  # InfoPanel
+  infoPanel.dialogLabel: "Info-Panel"
+  infoPanel.closeButtonLabel: "Info-Panel schließen"
+  infoPanel.tabListLabel: "Info-Ansicht wählen"
+  infoPanel.tab.race: "Renninfos"
+  infoPanel.tab.finishers: "Finisher"
+  infoPanel.schedule.title: "Zeitplan"
+  infoPanel.schedule.col.timepoint: "Zeitpunkt"
+  infoPanel.schedule.col.volks: "Volks"
+  infoPanel.schedule.col.olymp: "Olymp"
+  infoPanel.schedule.row.swimStart: "Start Schwimmbad"
+  infoPanel.schedule.row.bikeArrival: "Ankunft nach Fahrrad fahren (ca.)"
+  infoPanel.schedule.row.finish: "Zieleinlauf (ca.)"
+  infoPanel.distances.title: "Renndistanzen"
+  infoPanel.distances.volks.title: "Volksdistanz"
+  infoPanel.distances.volks.description: "500m Schwimmen | 20km Fahrrad | 5km Laufen"
+  infoPanel.distances.olymp.title: "Olympische Distanz"
+  infoPanel.distances.olymp.description: "1500m Schwimmen | 40km Fahrrad | 10km Laufen"
+  infoPanel.finishers.title: "Finisher"
+  infoPanel.finishers.filter.volks: "Volks"
+  infoPanel.finishers.filter.olympisch: "Olympisch"
+  infoPanel.finishers.col.rank: "#"
+  infoPanel.finishers.col.name: "Name"
+  infoPanel.finishers.col.bestTime: "Bestzeit"
+  infoPanel.finishers.col.year: "Jahr"
+  infoPanel.finishers.col.participations: "Teilnahmen"
+  infoPanel.finishers.col.participationsShort: "Teiln."
+  infoPanel.finishers.noResults: "Keine Finisher für die gewählte Distanz."
+  infoPanel.finishers.dnf: "DNF"

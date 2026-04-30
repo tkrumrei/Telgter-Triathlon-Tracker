@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Box, Button, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
+import { useIntl } from "open-pioneer:react-hooks";
 import { useState } from "react";
 import {
     type DistanceCategory,
@@ -14,14 +15,6 @@ interface InfoPanelProps {
     activeFilter: DistanceCategory;
     onSelectFilter: (filter: DistanceCategory) => void;
     onClose: () => void;
-}
-
-function getFilterLabel(filter: DistanceCategory): string {
-    if (filter === "volks") {
-        return "Volks";
-    }
-
-    return "Olympisch";
 }
 
 function toSeconds(time: string): number {
@@ -43,6 +36,7 @@ type InfoView = "race" | "finishers";
 
 export function InfoPanel(props: InfoPanelProps) {
     const { isOpen, activeFilter, onSelectFilter, onClose } = props;
+    const intl = useIntl();
     const [activeView, setActiveView] = useState<InfoView>("race");
 
     if (!isOpen) {
@@ -59,17 +53,17 @@ export function InfoPanel(props: InfoPanelProps) {
 
     const scheduleRows = [
         {
-            label: "Start Schwimmbad",
+            label: intl.formatMessage({ id: "infoPanel.schedule.row.swimStart" }),
             volks: scheduleMap.get("volks")?.startTime ?? "-",
             olymp: scheduleMap.get("olymp")?.startTime ?? "-"
         },
         {
-            label: "Ankunft nach Fahrrad fahren (ca.)",
+            label: intl.formatMessage({ id: "infoPanel.schedule.row.bikeArrival" }),
             volks: scheduleMap.get("volks")?.bikeArrivalEstimate ?? "-",
             olymp: scheduleMap.get("olymp")?.bikeArrivalEstimate ?? "-"
         },
         {
-            label: "Zieleinlauf (ca.)",
+            label: intl.formatMessage({ id: "infoPanel.schedule.row.finish" }),
             volks: scheduleMap.get("volks")?.finishArrivalEstimate ?? "-",
             olymp: scheduleMap.get("olymp")?.finishArrivalEstimate ?? "-"
         }
@@ -80,7 +74,7 @@ export function InfoPanel(props: InfoPanelProps) {
             className="tracker-info-overlay"
             role="dialog"
             aria-modal="true"
-            aria-label="Info-Panel"
+            aria-label={intl.formatMessage({ id: "infoPanel.dialogLabel" })}
             position="absolute"
             top="0"
             right="0"
@@ -105,7 +99,7 @@ export function InfoPanel(props: InfoPanelProps) {
                     <VStack align="center" gap="1">
                         <Box
                             role="tablist"
-                            aria-label="Info-Ansicht waehlen"
+                            aria-label={intl.formatMessage({ id: "infoPanel.tabListLabel" })}
                             display="inline-flex"
                             alignItems="center"
                             border="1px solid #b9cbe0"
@@ -135,7 +129,7 @@ export function InfoPanel(props: InfoPanelProps) {
                                 transition="background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease"
                                 cursor="pointer"
                             >
-                                Renninfos
+                                {intl.formatMessage({ id: "infoPanel.tab.race" })}
                             </Box>
                             <Box
                                 as="button"
@@ -157,13 +151,13 @@ export function InfoPanel(props: InfoPanelProps) {
                                 transition="background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease"
                                 cursor="pointer"
                             >
-                                Finisher
+                                {intl.formatMessage({ id: "infoPanel.tab.finishers" })}
                             </Box>
                         </Box>
                     </VStack>
 
                     <IconButton
-                        aria-label="Info-Panel schließen"
+                        aria-label={intl.formatMessage({ id: "infoPanel.closeButtonLabel" })}
                         onClick={onClose}
                         className="tracker-info-close-button"
                         size="sm"
@@ -187,7 +181,7 @@ export function InfoPanel(props: InfoPanelProps) {
                     <>
                         <Box className="tracker-info-card tracker-info-section-wrap">
                             <Text className="tracker-info-section-title" fontSize={{ base: "28px", md: "32px" }} w="100%" textAlign="center">
-                                Zeitplan
+                                {intl.formatMessage({ id: "infoPanel.schedule.title" })}
                             </Text>
                             <Box className="tracker-info-table-wrap" overflowX="auto" px="2" py="2">
                                 <Box
@@ -203,9 +197,15 @@ export function InfoPanel(props: InfoPanelProps) {
                                     justifyItems="center"
                                     justifyContent="center"
                                 >
-                                    <Text fontWeight="bold" color="#1f3c5e" textAlign="center">Zeitpunkt</Text>
-                                    <Text fontWeight="bold" color="#1f3c5e" textAlign="center">Volks</Text>
-                                    <Text fontWeight="bold" color="#1f3c5e" textAlign="center">Olymp</Text>
+                                    <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
+                                        {intl.formatMessage({ id: "infoPanel.schedule.col.timepoint" })}
+                                    </Text>
+                                    <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
+                                        {intl.formatMessage({ id: "infoPanel.schedule.col.volks" })}
+                                    </Text>
+                                    <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
+                                        {intl.formatMessage({ id: "infoPanel.schedule.col.olymp" })}
+                                    </Text>
 
                                     {scheduleRows.flatMap((row) => [
                                         <Text key={`${row.label}-label`} fontWeight="bold" textAlign="center">{row.label}</Text>,
@@ -218,7 +218,7 @@ export function InfoPanel(props: InfoPanelProps) {
 
                         <Box className="tracker-info-card tracker-info-section-wrap">
                             <Text className="tracker-info-section-title" fontSize={{ base: "28px", md: "32px" }} w="100%" textAlign="center">
-                                Renndistanzen
+                                {intl.formatMessage({ id: "infoPanel.distances.title" })}
                             </Text>
                             <Box
                                 display="grid"
@@ -228,19 +228,19 @@ export function InfoPanel(props: InfoPanelProps) {
                             >
                                 <Box bg="#f6faff" border="1px solid #d9e4ef" borderRadius="10px" p="12px">
                                     <Text fontWeight="bold" textAlign="center" color="#1f3c5e" mb="1">
-                                        Volksdistanz
+                                        {intl.formatMessage({ id: "infoPanel.distances.volks.title" })}
                                     </Text>
                                     <Text textAlign="center" color="#213a55">
-                                        500m Schwimmen | 20km Fahrrad | 5km Laufen
+                                        {intl.formatMessage({ id: "infoPanel.distances.volks.description" })}
                                     </Text>
                                 </Box>
 
                                 <Box bg="#f6faff" border="1px solid #d9e4ef" borderRadius="10px" p="12px">
                                     <Text fontWeight="bold" textAlign="center" color="#1f3c5e" mb="1">
-                                        Olympische Distanz
+                                        {intl.formatMessage({ id: "infoPanel.distances.olymp.title" })}
                                     </Text>
                                     <Text textAlign="center" color="#213a55">
-                                        1500m Schwimmen | 40km Fahrrad | 10km Laufen
+                                        {intl.formatMessage({ id: "infoPanel.distances.olymp.description" })}
                                     </Text>
                                 </Box>
                             </Box>
@@ -251,11 +251,15 @@ export function InfoPanel(props: InfoPanelProps) {
                 {activeView === "finishers" && (
                     <Box className="tracker-info-card tracker-info-finishers tracker-info-section-wrap">
                         <Text className="tracker-info-section-title" fontSize={{ base: "28px", md: "32px" }} w="100%" textAlign="center">
-                            Finisher
+                            {intl.formatMessage({ id: "infoPanel.finishers.title" })}
                         </Text>
                         <HStack gap="2" wrap="wrap" justify="center" w="100%" mb="2">
                             {(["volks", "olymp"] as const).map((filter) => {
                                 const isActive = activeFilter === filter;
+                                const filterLabel =
+                                    filter === "volks"
+                                        ? intl.formatMessage({ id: "infoPanel.finishers.filter.volks" })
+                                        : intl.formatMessage({ id: "infoPanel.finishers.filter.olympisch" });
                                 return (
                                     <Button
                                         key={filter}
@@ -272,7 +276,7 @@ export function InfoPanel(props: InfoPanelProps) {
                                         color={isActive ? "white" : "black"}
                                         _hover={{ bg: isActive ? "#002a52" : "gray.50" }}
                                     >
-                                        {getFilterLabel(filter)}
+                                        {filterLabel}
                                     </Button>
                                 );
                             })}
@@ -292,33 +296,60 @@ export function InfoPanel(props: InfoPanelProps) {
                                 justifyContent="center"
                             >
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center" display={{ base: "none", md: "block" }}>
-                                    #
+                                    {intl.formatMessage({ id: "infoPanel.finishers.col.rank" })}
                                 </Text>
-                                <Text fontWeight="bold" color="#1f3c5e" textAlign="center">Name</Text>
-                                <Text fontWeight="bold" color="#1f3c5e" textAlign="center">Bestzeit</Text>
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
-                                    Jahr
+                                    {intl.formatMessage({ id: "infoPanel.finishers.col.name" })}
+                                </Text>
+                                <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
+                                    {intl.formatMessage({ id: "infoPanel.finishers.col.bestTime" })}
+                                </Text>
+                                <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
+                                    {intl.formatMessage({ id: "infoPanel.finishers.col.year" })}
                                 </Text>
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
                                     <Box as="span" display={{ base: "none", md: "inline" }}>
-                                        Teilnahmen
+                                        {intl.formatMessage({ id: "infoPanel.finishers.col.participations" })}
                                     </Box>
                                     <Box as="span" display={{ base: "inline", md: "none" }}>
-                                        Teiln.
+                                        {intl.formatMessage({ id: "infoPanel.finishers.col.participationsShort" })}
                                     </Box>
                                 </Text>
 
                                 {filteredFinishers.length === 0 ? (
                                     <Text gridColumn="1 / -1" textAlign="center" color="#4f647a">
-                                        Keine Finisher für die gewählte Distanz.
+                                        {intl.formatMessage({ id: "infoPanel.finishers.noResults" })}
                                     </Text>
                                 ) : (
                                     filteredFinishers.flatMap((entry, index) => [
                                         <Text key={`${entry.name}-${entry.year}-rank`} fontWeight="bold" textAlign="center" display={{ base: "none", md: "block" }}>
                                             {index + 1}
                                         </Text>,
-                                        <Text key={`${entry.name}-${entry.year}-name`} fontWeight="bold" textAlign="center">{entry.name}</Text>,
-                                        <Text key={`${entry.name}-${entry.year}-zeit`} textAlign="center">{entry.finishTime}</Text>,
+                                        <Text key={`${entry.name}-${entry.year}-name`} fontWeight="bold" textAlign="center">
+                                            {entry.name}
+                                        </Text>,
+                                        entry.finishTime ? (
+                                            <Text key={`${entry.name}-${entry.year}-zeit`} textAlign="center">
+                                                {entry.finishTime}
+                                            </Text>
+                                        ) : (
+                                            <Box key={`${entry.name}-${entry.year}-zeit`} display="flex" justifyContent="center" alignItems="center">
+                                                <Text
+                                                    fontSize="11px"
+                                                    fontWeight="bold"
+                                                    color="red.700"
+                                                    bg="red.50"
+                                                    border="1px solid"
+                                                    borderColor="red.200"
+                                                    px="2"
+                                                    py="0.5"
+                                                    borderRadius="4px"
+                                                    letterSpacing="0.05em"
+                                                >
+                                                    {intl.formatMessage({ id: "infoPanel.finishers.dnf" })}
+                                                </Text>
+                                            </Box>
+                                        ),
                                         <Text key={`${entry.name}-${entry.year}-year`} textAlign="center">
                                             {entry.year}
                                         </Text>,

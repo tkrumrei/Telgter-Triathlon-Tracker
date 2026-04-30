@@ -1,0 +1,76 @@
+# 日本語翻訳
+messages:
+  # TrackerHeader
+  header.title: "トライアスロン トラッカー"
+  header.logoAlt: "テルグテ・トライアスロン ロゴ"
+
+  # LoginScreen
+  login.eventTitle: "第3回 テルグテ・トライアスロン"
+  login.logoAlt: "テルグテ・トライアスロン ロゴ"
+  login.heading: "イベント入場"
+  login.codePlaceholder: "コード..."
+  login.startButton: "開始"
+  login.invalidCode: "❌ コードが無効です"
+
+  # AppUI / マップ
+  map.loading: "地図を読み込み中..."
+  map.infoButtonLabel: "情報パネルを開く"
+
+  # DistancePanel
+  distancePanel.openButtonLabel: "パネルを開く"
+  distancePanel.closeButtonLabel: "パネルを閉じる"
+  distancePanel.title: "距離を選択："
+  distancePanel.filter.all: "すべて"
+  distancePanel.filter.volks: "スプリント"
+  distancePanel.filter.olymp: "オリンピック"
+  distancePanel.legend.title: "種目："
+
+  # ParticipantsPanel
+  participantsPanel.openButtonLabel: "参加者パネルを開く"
+  participantsPanel.closeButtonLabel: "参加者パネルを閉じる"
+  participantsPanel.title: "参加者 ({count})"
+  participantsPanel.followActive: "追跡中: {name}"
+  participantsPanel.searchPlaceholder: "参加者を検索..."
+  participantsPanel.noResults: "アクティブな参加者が見つかりません。"
+  participantsPanel.followButton: "追跡"
+  participantsPanel.stopFollowButton: "✕"
+  participantsPanel.lastUpdated.seconds: "{n}秒前"
+  participantsPanel.lastUpdated.minutes: "{n}分前"
+  participantsPanel.distance.volks: "スプリント"
+  participantsPanel.distance.olymp: "オリンピック"
+
+  # InfoPanel
+  infoPanel.dialogLabel: "情報パネル"
+  infoPanel.closeButtonLabel: "情報パネルを閉じる"
+  infoPanel.tabListLabel: "表示を選択"
+  infoPanel.tab.race: "レース情報"
+  infoPanel.tab.finishers: "完走者"
+  infoPanel.schedule.title: "スケジュール"
+  infoPanel.schedule.col.timepoint: "時間帯"
+  infoPanel.schedule.col.volks: "スプリント"
+  infoPanel.schedule.col.olymp: "オリンピック"
+  infoPanel.schedule.row.swimStart: "スイムスタート"
+  infoPanel.schedule.row.bikeArrival: "バイク終了（予定）"
+  infoPanel.schedule.row.finish: "フィニッシュ（予定）"
+  infoPanel.distances.title: "レース距離"
+  infoPanel.distances.volks.title: "スプリントディスタンス"
+  infoPanel.distances.volks.description: "スイム 500m | バイク 20km | ラン 5km"
+  infoPanel.distances.olymp.title: "オリンピックディスタンス"
+  infoPanel.distances.olymp.description: "スイム 1500m | バイク 40km | ラン 10km"
+  infoPanel.finishers.title: "完走者"
+  infoPanel.finishers.filter.volks: "スプリント"
+  infoPanel.finishers.filter.olympisch: "オリンピック"
+  infoPanel.finishers.col.rank: "#"
+  infoPanel.finishers.col.name: "名前"
+  infoPanel.finishers.col.bestTime: "ベストタイム"
+  infoPanel.finishers.col.year: "年"
+  infoPanel.finishers.col.participations: "参加回数"
+  infoPanel.finishers.col.participationsShort: "回"
+  infoPanel.finishers.noResults: "選択した距離の完走者はいません。"
+  infoPanel.finishers.dnf: "DNF"
+
+overrides:
+  "@open-pioneer/map":
+    messages:
+      attribution:
+        label: 帰属表示
