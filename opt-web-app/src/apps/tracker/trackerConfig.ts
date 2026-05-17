@@ -51,7 +51,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
     {
         id: "route-bike-volks",
         title: "Radfahren Volks",
-        url: "routes/Strecke_Fahrrad_Volks.json",
+        url: "routes/Strecke_Fahrrad_Volks.gpx",
         color: COLORS.bike,
         width: 4,
         category: "volks"
@@ -59,7 +59,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
     {
         id: "route-run-volks",
         title: "Laufen Volks",
-        url: "routes/Strecke_Laufen_Volks.json",
+        url: "routes/Strecke_Laufen_Volks.gpx",
         color: COLORS.run,
         width: 4,
         category: "volks"
@@ -67,7 +67,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
     {
         id: "route-bike-olymp",
         title: "Radfahren Olymp",
-        url: "routes/Strecke_Fahrrad_Olymp.json",
+        url: "routes/Strecke_Fahrrad_Olymp.gpx",
         color: COLORS.bike,
         width: 4,
         category: "olymp"
@@ -75,7 +75,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
     {
         id: "route-run-olymp",
         title: "Laufen Olymp",
-        url: "routes/Strecke_Laufen_Olymp.json",
+        url: "routes/Strecke_Laufen_Olymp.gpx",
         color: COLORS.run,
         width: 4,
         category: "olymp"

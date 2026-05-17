@@ -3,6 +3,7 @@
 
 import { MapConfigProvider, type MapConfig, type MapConfigProviderOptions, SimpleLayer } from "@open-pioneer/map";
 import GeoJSON from "ol/format/GeoJSON";
+import GPX from "ol/format/GPX";
 import VectorLayer from "ol/layer/Vector";
 import TileLayer from "ol/layer/Tile";
 import VectorSource from "ol/source/Vector";
@@ -36,6 +37,28 @@ export class MapConfigProviderImpl implements MapConfigProvider {
                     })
                 }),
                 ...ROUTES_CONFIG.map((config) => {
+                    const isGpx = config.url.endsWith(".gpx");
+                    const styleFn = new Style({
+                        stroke: new Stroke({
+                            color: config.color,
+                            width: config.width
+                        })
+                    });
+                    let source: VectorSource;
+                    if (isGpx) {
+                        const gpxFmt = new GPX();
+                        source = new VectorSource({
+                            format: gpxFmt,
+                            url: config.url
+                        });
+                    } else {
+                        source = new VectorSource({
+                            url: config.url,
+                            format: new GeoJSON({
+                                featureProjection: "EPSG:3857"
+                            })
+                        });
+                    }
                     return layerFactory.create({
                         type: SimpleLayer,
                         id: config.id,
@@ -44,19 +67,8 @@ export class MapConfigProviderImpl implements MapConfigProvider {
                             category: config.category
                         },
                         olLayer: new VectorLayer({
-                            source: new VectorSource({
-                                url: config.url,
-                                format: new GeoJSON({
-                                    featureProjection: "EPSG:3857"
-                                })
-                            }),
-                            style: new Style({
-                                stroke: new Stroke({
-                                    color: config.color,
-                                    width: config.width
-                                })
-                            }),
-                            zIndex: 1
+                            source,
+                            style: styleFn
                         })
                     });
                 }),
