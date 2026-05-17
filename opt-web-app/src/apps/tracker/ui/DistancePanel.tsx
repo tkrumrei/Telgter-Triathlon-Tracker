@@ -117,7 +117,9 @@ export function DistancePanel(props: DistancePanelProps) {
                             {intl.formatMessage({ id: "distancePanel.title" })}
                         </Text>
                         <IconButton
-                            aria-label={intl.formatMessage({ id: "distancePanel.closeButtonLabel" })}
+                            aria-label={intl.formatMessage({
+                                id: "distancePanel.closeButtonLabel"
+                            })}
                             onClick={onClose}
                             className="tracker-icon-button"
                             size="sm"
@@ -128,20 +130,48 @@ export function DistancePanel(props: DistancePanelProps) {
                             _hover={{ bg: "gray.50" }}
                         >
                             <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
-                                <line x1="5" y1="5" x2="15" y2="15" stroke="#1f2a36" strokeWidth="2" strokeLinecap="round" />
-                                <line x1="15" y1="5" x2="5" y2="15" stroke="#1f2a36" strokeWidth="2" strokeLinecap="round" />
+                                <line
+                                    x1="5"
+                                    y1="5"
+                                    x2="15"
+                                    y2="15"
+                                    stroke="#1f2a36"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                />
+                                <line
+                                    x1="15"
+                                    y1="5"
+                                    x2="5"
+                                    y2="15"
+                                    stroke="#1f2a36"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                />
                             </svg>
                         </IconButton>
                     </HStack>
 
                     <HStack gap="2">
-                        <FilterButton value="all" activeFilter={activeFilter} onSelect={onSelectFilter}>
+                        <FilterButton
+                            value="all"
+                            activeFilter={activeFilter}
+                            onSelect={onSelectFilter}
+                        >
                             {intl.formatMessage({ id: "distancePanel.filter.all" })}
                         </FilterButton>
-                        <FilterButton value="volks" activeFilter={activeFilter} onSelect={onSelectFilter}>
+                        <FilterButton
+                            value="volks"
+                            activeFilter={activeFilter}
+                            onSelect={onSelectFilter}
+                        >
                             {intl.formatMessage({ id: "distancePanel.filter.volks" })}
                         </FilterButton>
-                        <FilterButton value="olymp" activeFilter={activeFilter} onSelect={onSelectFilter}>
+                        <FilterButton
+                            value="olymp"
+                            activeFilter={activeFilter}
+                            onSelect={onSelectFilter}
+                        >
                             {intl.formatMessage({ id: "distancePanel.filter.olymp" })}
                         </FilterButton>
                     </HStack>
@@ -154,9 +184,25 @@ export function DistancePanel(props: DistancePanelProps) {
                         {intl.formatMessage({ id: "distancePanel.legend.title" })}
                     </Text>
                     {LEGEND_ITEMS.map((item) => (
-                        <HStack key={item.label} className="tracker-legend-row" mt="1.5" align="center">
-                            <Box className="tracker-legend-swatch" w="24px" h="6px" borderRadius="3px" mr="2.5" bg={item.color}></Box>
-                            <Text className="tracker-legend-label" fontSize="14px" fontWeight="bold">
+                        <HStack
+                            key={item.label}
+                            className="tracker-legend-row"
+                            mt="1.5"
+                            align="center"
+                        >
+                            <Box
+                                className="tracker-legend-swatch"
+                                w="24px"
+                                h="6px"
+                                borderRadius="3px"
+                                mr="2.5"
+                                bg={item.color}
+                            ></Box>
+                            <Text
+                                className="tracker-legend-label"
+                                fontSize="14px"
+                                fontWeight="bold"
+                            >
                                 {item.label}
                             </Text>
                         </HStack>

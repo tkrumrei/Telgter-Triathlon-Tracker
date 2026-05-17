@@ -271,7 +271,10 @@
     font-size: 14px;
     letter-spacing: 0.01em;
     min-width: 120px;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
 }
 
 .tracker-info-filter-button[data-active="true"] {

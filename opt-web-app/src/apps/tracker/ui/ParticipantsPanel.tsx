@@ -26,7 +26,10 @@ interface ParticipantsPanelProps {
 function formatLastUpdated(lastUpdatedTs: number, intl: PackageIntl): string {
     const deltaSeconds = Math.max(0, Math.floor((Date.now() - lastUpdatedTs) / 1000));
     if (deltaSeconds < 60) {
-        return intl.formatMessage({ id: "participantsPanel.lastUpdated.seconds" }, { n: deltaSeconds });
+        return intl.formatMessage(
+            { id: "participantsPanel.lastUpdated.seconds" },
+            { n: deltaSeconds }
+        );
     }
 
     const deltaMinutes = Math.floor(deltaSeconds / 60);
@@ -76,7 +79,10 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
             return null;
         }
 
-        return participants.find((participant) => participant.id === followedParticipantId)?.name ?? null;
+        return (
+            participants.find((participant) => participant.id === followedParticipantId)?.name ??
+            null
+        );
     }, [followedParticipantId, participants]);
 
     if (!isOpen) {
@@ -96,7 +102,13 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
             >
                 <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
                     <circle cx="10" cy="7" r="3" stroke="#1f2a36" strokeWidth="2" fill="none" />
-                    <path d="M4 17c0-2.6 2.7-4 6-4s6 1.4 6 4" stroke="#1f2a36" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    <path
+                        d="M4 17c0-2.6 2.7-4 6-4s6 1.4 6 4"
+                        stroke="#1f2a36"
+                        strokeWidth="2"
+                        fill="none"
+                        strokeLinecap="round"
+                    />
                 </svg>
             </IconButton>
         );
@@ -114,7 +126,10 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
         >
             <HStack justify="space-between" gap="2">
                 <Text fontWeight="bold" fontSize="15px" color="#1f2a36">
-                    {intl.formatMessage({ id: "participantsPanel.title" }, { count: participants.length })}
+                    {intl.formatMessage(
+                        { id: "participantsPanel.title" },
+                        { count: participants.length }
+                    )}
                 </Text>
                 <IconButton
                     aria-label={intl.formatMessage({ id: "participantsPanel.closeButtonLabel" })}
@@ -128,8 +143,24 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
                     _hover={{ bg: "gray.50" }}
                 >
                     <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
-                        <line x1="5" y1="5" x2="15" y2="15" stroke="#1f2a36" strokeWidth="2" strokeLinecap="round" />
-                        <line x1="15" y1="5" x2="5" y2="15" stroke="#1f2a36" strokeWidth="2" strokeLinecap="round" />
+                        <line
+                            x1="5"
+                            y1="5"
+                            x2="15"
+                            y2="15"
+                            stroke="#1f2a36"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                        />
+                        <line
+                            x1="15"
+                            y1="5"
+                            x2="5"
+                            y2="15"
+                            stroke="#1f2a36"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                        />
                     </svg>
                 </IconButton>
             </HStack>
@@ -174,11 +205,19 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
                                     borderColor={isFollowed ? "#003366" : "#dfe5eb"}
                                 >
                                     <VStack align="start" gap="0" minW="0">
-                                        <Text fontSize="12px" fontWeight="bold" color="#223" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
+                                        <Text
+                                            fontSize="12px"
+                                            fontWeight="bold"
+                                            color="#223"
+                                            whiteSpace="nowrap"
+                                            overflow="hidden"
+                                            textOverflow="ellipsis"
+                                        >
                                             {participant.name}
                                         </Text>
                                         <Text fontSize="11px" color="#667">
-                                            {formatDistanceLabel(participant.distanz, intl)} · {formatLastUpdated(participant.lastUpdatedTs, intl)}
+                                            {formatDistanceLabel(participant.distanz, intl)} ·{" "}
+                                            {formatLastUpdated(participant.lastUpdatedTs, intl)}
                                         </Text>
                                     </VStack>
 
@@ -199,8 +238,12 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
                                         }}
                                     >
                                         {isFollowed
-                                            ? intl.formatMessage({ id: "participantsPanel.stopFollowButton" })
-                                            : intl.formatMessage({ id: "participantsPanel.followButton" })}
+                                            ? intl.formatMessage({
+                                                  id: "participantsPanel.stopFollowButton"
+                                              })
+                                            : intl.formatMessage({
+                                                  id: "participantsPanel.followButton"
+                                              })}
                                     </Button>
                                 </HStack>
                             );

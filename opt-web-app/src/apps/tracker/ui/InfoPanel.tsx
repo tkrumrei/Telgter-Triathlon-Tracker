@@ -4,11 +4,7 @@
 import { Box, Button, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
 import { useState } from "react";
-import {
-    type DistanceCategory,
-    FINISHERS,
-    SCHEDULE_TIMES
-} from "../trackerConfig";
+import { type DistanceCategory, FINISHERS, SCHEDULE_TIMES } from "../trackerConfig";
 
 interface InfoPanelProps {
     isOpen: boolean;
@@ -43,9 +39,7 @@ export function InfoPanel(props: InfoPanelProps) {
         return null;
     }
 
-    const scheduleMap = new Map(
-        SCHEDULE_TIMES.map((entry) => [entry.distanz, entry] as const)
-    );
+    const scheduleMap = new Map(SCHEDULE_TIMES.map((entry) => [entry.distanz, entry] as const));
 
     const filteredFinishers = FINISHERS.filter((entry) => entry.distanz === activeFilter).sort(
         (left, right) => toSeconds(left.finishTime) - toSeconds(right.finishTime)
@@ -125,7 +119,11 @@ export function InfoPanel(props: InfoPanelProps) {
                                         ? "linear-gradient(180deg, #0f4a83 0%, #0a3b69 100%)"
                                         : "transparent"
                                 }
-                                boxShadow={activeView === "race" ? "0 4px 10px rgba(12, 52, 92, 0.32)" : "none"}
+                                boxShadow={
+                                    activeView === "race"
+                                        ? "0 4px 10px rgba(12, 52, 92, 0.32)"
+                                        : "none"
+                                }
                                 transition="background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease"
                                 cursor="pointer"
                             >
@@ -147,7 +145,11 @@ export function InfoPanel(props: InfoPanelProps) {
                                         ? "linear-gradient(180deg, #0f4a83 0%, #0a3b69 100%)"
                                         : "transparent"
                                 }
-                                boxShadow={activeView === "finishers" ? "0 4px 10px rgba(12, 52, 92, 0.32)" : "none"}
+                                boxShadow={
+                                    activeView === "finishers"
+                                        ? "0 4px 10px rgba(12, 52, 92, 0.32)"
+                                        : "none"
+                                }
                                 transition="background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease"
                                 cursor="pointer"
                             >
@@ -171,8 +173,24 @@ export function InfoPanel(props: InfoPanelProps) {
                         _hover={{ bg: "gray.50" }}
                     >
                         <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
-                            <line x1="5" y1="5" x2="15" y2="15" stroke="#1f2a36" strokeWidth="2" strokeLinecap="round" />
-                            <line x1="15" y1="5" x2="5" y2="15" stroke="#1f2a36" strokeWidth="2" strokeLinecap="round" />
+                            <line
+                                x1="5"
+                                y1="5"
+                                x2="15"
+                                y2="15"
+                                stroke="#1f2a36"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            />
+                            <line
+                                x1="15"
+                                y1="5"
+                                x2="5"
+                                y2="15"
+                                stroke="#1f2a36"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            />
                         </svg>
                     </IconButton>
                 </Box>
@@ -180,7 +198,12 @@ export function InfoPanel(props: InfoPanelProps) {
                 {activeView === "race" && (
                     <>
                         <Box className="tracker-info-card tracker-info-section-wrap">
-                            <Text className="tracker-info-section-title" fontSize={{ base: "28px", md: "32px" }} w="100%" textAlign="center">
+                            <Text
+                                className="tracker-info-section-title"
+                                fontSize={{ base: "28px", md: "32px" }}
+                                w="100%"
+                                textAlign="center"
+                            >
                                 {intl.formatMessage({ id: "infoPanel.schedule.title" })}
                             </Text>
                             <Box className="tracker-info-table-wrap" overflowX="auto" px="2" py="2">
@@ -198,7 +221,9 @@ export function InfoPanel(props: InfoPanelProps) {
                                     justifyContent="center"
                                 >
                                     <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
-                                        {intl.formatMessage({ id: "infoPanel.schedule.col.timepoint" })}
+                                        {intl.formatMessage({
+                                            id: "infoPanel.schedule.col.timepoint"
+                                        })}
                                     </Text>
                                     <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
                                         {intl.formatMessage({ id: "infoPanel.schedule.col.volks" })}
@@ -208,16 +233,31 @@ export function InfoPanel(props: InfoPanelProps) {
                                     </Text>
 
                                     {scheduleRows.flatMap((row) => [
-                                        <Text key={`${row.label}-label`} fontWeight="bold" textAlign="center">{row.label}</Text>,
-                                        <Text key={`${row.label}-volks`} textAlign="center">{row.volks}</Text>,
-                                        <Text key={`${row.label}-olymp`} textAlign="center">{row.olymp}</Text>
+                                        <Text
+                                            key={`${row.label}-label`}
+                                            fontWeight="bold"
+                                            textAlign="center"
+                                        >
+                                            {row.label}
+                                        </Text>,
+                                        <Text key={`${row.label}-volks`} textAlign="center">
+                                            {row.volks}
+                                        </Text>,
+                                        <Text key={`${row.label}-olymp`} textAlign="center">
+                                            {row.olymp}
+                                        </Text>
                                     ])}
                                 </Box>
                             </Box>
                         </Box>
 
                         <Box className="tracker-info-card tracker-info-section-wrap">
-                            <Text className="tracker-info-section-title" fontSize={{ base: "28px", md: "32px" }} w="100%" textAlign="center">
+                            <Text
+                                className="tracker-info-section-title"
+                                fontSize={{ base: "28px", md: "32px" }}
+                                w="100%"
+                                textAlign="center"
+                            >
                                 {intl.formatMessage({ id: "infoPanel.distances.title" })}
                             </Text>
                             <Box
@@ -226,21 +266,49 @@ export function InfoPanel(props: InfoPanelProps) {
                                 gap={{ base: "12px", md: "18px" }}
                                 w="100%"
                             >
-                                <Box bg="#f6faff" border="1px solid #d9e4ef" borderRadius="10px" p="12px">
-                                    <Text fontWeight="bold" textAlign="center" color="#1f3c5e" mb="1">
-                                        {intl.formatMessage({ id: "infoPanel.distances.volks.title" })}
+                                <Box
+                                    bg="#f6faff"
+                                    border="1px solid #d9e4ef"
+                                    borderRadius="10px"
+                                    p="12px"
+                                >
+                                    <Text
+                                        fontWeight="bold"
+                                        textAlign="center"
+                                        color="#1f3c5e"
+                                        mb="1"
+                                    >
+                                        {intl.formatMessage({
+                                            id: "infoPanel.distances.volks.title"
+                                        })}
                                     </Text>
                                     <Text textAlign="center" color="#213a55">
-                                        {intl.formatMessage({ id: "infoPanel.distances.volks.description" })}
+                                        {intl.formatMessage({
+                                            id: "infoPanel.distances.volks.description"
+                                        })}
                                     </Text>
                                 </Box>
 
-                                <Box bg="#f6faff" border="1px solid #d9e4ef" borderRadius="10px" p="12px">
-                                    <Text fontWeight="bold" textAlign="center" color="#1f3c5e" mb="1">
-                                        {intl.formatMessage({ id: "infoPanel.distances.olymp.title" })}
+                                <Box
+                                    bg="#f6faff"
+                                    border="1px solid #d9e4ef"
+                                    borderRadius="10px"
+                                    p="12px"
+                                >
+                                    <Text
+                                        fontWeight="bold"
+                                        textAlign="center"
+                                        color="#1f3c5e"
+                                        mb="1"
+                                    >
+                                        {intl.formatMessage({
+                                            id: "infoPanel.distances.olymp.title"
+                                        })}
                                     </Text>
                                     <Text textAlign="center" color="#213a55">
-                                        {intl.formatMessage({ id: "infoPanel.distances.olymp.description" })}
+                                        {intl.formatMessage({
+                                            id: "infoPanel.distances.olymp.description"
+                                        })}
                                     </Text>
                                 </Box>
                             </Box>
@@ -250,7 +318,12 @@ export function InfoPanel(props: InfoPanelProps) {
 
                 {activeView === "finishers" && (
                     <Box className="tracker-info-card tracker-info-finishers tracker-info-section-wrap">
-                        <Text className="tracker-info-section-title" fontSize={{ base: "28px", md: "32px" }} w="100%" textAlign="center">
+                        <Text
+                            className="tracker-info-section-title"
+                            fontSize={{ base: "28px", md: "32px" }}
+                            w="100%"
+                            textAlign="center"
+                        >
                             {intl.formatMessage({ id: "infoPanel.finishers.title" })}
                         </Text>
                         <HStack gap="2" wrap="wrap" justify="center" w="100%" mb="2">
@@ -258,8 +331,12 @@ export function InfoPanel(props: InfoPanelProps) {
                                 const isActive = activeFilter === filter;
                                 const filterLabel =
                                     filter === "volks"
-                                        ? intl.formatMessage({ id: "infoPanel.finishers.filter.volks" })
-                                        : intl.formatMessage({ id: "infoPanel.finishers.filter.olympisch" });
+                                        ? intl.formatMessage({
+                                              id: "infoPanel.finishers.filter.volks"
+                                          })
+                                        : intl.formatMessage({
+                                              id: "infoPanel.finishers.filter.olympisch"
+                                          });
                                 return (
                                     <Button
                                         key={filter}
@@ -281,7 +358,12 @@ export function InfoPanel(props: InfoPanelProps) {
                                 );
                             })}
                         </HStack>
-                        <Box className="tracker-info-table-wrap tracker-info-finishers-table-wrap" overflowX="auto" px="2" py="2">
+                        <Box
+                            className="tracker-info-table-wrap tracker-info-finishers-table-wrap"
+                            overflowX="auto"
+                            px="2"
+                            py="2"
+                        >
                             <Box
                                 minW={{ base: "100%", md: "840px" }}
                                 display="grid"
@@ -295,7 +377,12 @@ export function InfoPanel(props: InfoPanelProps) {
                                 justifyItems="center"
                                 justifyContent="center"
                             >
-                                <Text fontWeight="bold" color="#1f3c5e" textAlign="center" display={{ base: "none", md: "block" }}>
+                                <Text
+                                    fontWeight="bold"
+                                    color="#1f3c5e"
+                                    textAlign="center"
+                                    display={{ base: "none", md: "block" }}
+                                >
                                     {intl.formatMessage({ id: "infoPanel.finishers.col.rank" })}
                                 </Text>
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
@@ -309,31 +396,54 @@ export function InfoPanel(props: InfoPanelProps) {
                                 </Text>
                                 <Text fontWeight="bold" color="#1f3c5e" textAlign="center">
                                     <Box as="span" display={{ base: "none", md: "inline" }}>
-                                        {intl.formatMessage({ id: "infoPanel.finishers.col.participations" })}
+                                        {intl.formatMessage({
+                                            id: "infoPanel.finishers.col.participations"
+                                        })}
                                     </Box>
                                     <Box as="span" display={{ base: "inline", md: "none" }}>
-                                        {intl.formatMessage({ id: "infoPanel.finishers.col.participationsShort" })}
+                                        {intl.formatMessage({
+                                            id: "infoPanel.finishers.col.participationsShort"
+                                        })}
                                     </Box>
                                 </Text>
 
                                 {filteredFinishers.length === 0 ? (
                                     <Text gridColumn="1 / -1" textAlign="center" color="#4f647a">
-                                        {intl.formatMessage({ id: "infoPanel.finishers.noResults" })}
+                                        {intl.formatMessage({
+                                            id: "infoPanel.finishers.noResults"
+                                        })}
                                     </Text>
                                 ) : (
                                     filteredFinishers.flatMap((entry, index) => [
-                                        <Text key={`${entry.name}-${entry.year}-rank`} fontWeight="bold" textAlign="center" display={{ base: "none", md: "block" }}>
+                                        <Text
+                                            key={`${entry.name}-${entry.year}-rank`}
+                                            fontWeight="bold"
+                                            textAlign="center"
+                                            display={{ base: "none", md: "block" }}
+                                        >
                                             {index + 1}
                                         </Text>,
-                                        <Text key={`${entry.name}-${entry.year}-name`} fontWeight="bold" textAlign="center">
+                                        <Text
+                                            key={`${entry.name}-${entry.year}-name`}
+                                            fontWeight="bold"
+                                            textAlign="center"
+                                        >
                                             {entry.name}
                                         </Text>,
                                         entry.finishTime ? (
-                                            <Text key={`${entry.name}-${entry.year}-zeit`} textAlign="center">
+                                            <Text
+                                                key={`${entry.name}-${entry.year}-zeit`}
+                                                textAlign="center"
+                                            >
                                                 {entry.finishTime}
                                             </Text>
                                         ) : (
-                                            <Box key={`${entry.name}-${entry.year}-zeit`} display="flex" justifyContent="center" alignItems="center">
+                                            <Box
+                                                key={`${entry.name}-${entry.year}-zeit`}
+                                                display="flex"
+                                                justifyContent="center"
+                                                alignItems="center"
+                                            >
                                                 <Text
                                                     fontSize="11px"
                                                     fontWeight="bold"
@@ -346,14 +456,22 @@ export function InfoPanel(props: InfoPanelProps) {
                                                     borderRadius="4px"
                                                     letterSpacing="0.05em"
                                                 >
-                                                    {intl.formatMessage({ id: "infoPanel.finishers.dnf" })}
+                                                    {intl.formatMessage({
+                                                        id: "infoPanel.finishers.dnf"
+                                                    })}
                                                 </Text>
                                             </Box>
                                         ),
-                                        <Text key={`${entry.name}-${entry.year}-year`} textAlign="center">
+                                        <Text
+                                            key={`${entry.name}-${entry.year}-year`}
+                                            textAlign="center"
+                                        >
                                             {entry.year}
                                         </Text>,
-                                        <Text key={`${entry.name}-${entry.year}-teilnahmen`} textAlign="center">
+                                        <Text
+                                            key={`${entry.name}-${entry.year}-teilnahmen`}
+                                            textAlign="center"
+                                        >
                                             {entry.teilnahmen}
                                         </Text>
                                     ])

@@ -99,7 +99,10 @@ function matchesDistanceFilter(distanzRaw: string, filter: DistanceFilter): bool
     return normalized.includes("olymp") || normalized === "o";
 }
 
-function applyRouteFilter(mapModel: { layers: { getLayerById: (id: string) => unknown } }, filter: DistanceFilter): void {
+function applyRouteFilter(
+    mapModel: { layers: { getLayerById: (id: string) => unknown } },
+    filter: DistanceFilter
+): void {
     ROUTES_CONFIG.forEach((config) => {
         const layer = mapModel.layers.getLayerById(config.id);
         if (!hasOlLayer(layer)) {
@@ -109,6 +112,23 @@ function applyRouteFilter(mapModel: { layers: { getLayerById: (id: string) => un
         const shouldHighlight =
             config.category === "common" || filter === "all" || filter === config.category;
         layer.olLayer.setOpacity(shouldHighlight ? 1 : 0.25);
+    });
+}
+
+function applyArrowFilter(
+    mapModel: { layers: { getLayerById: (id: string) => unknown } },
+    filter: DistanceFilter
+): void {
+    ROUTES_CONFIG.forEach((config) => {
+        const arrowLayerId = config.id + "-arrows";
+        const arrowLayer = mapModel.layers.getLayerById(arrowLayerId);
+        if (!hasOlLayer(arrowLayer)) {
+            return;
+        }
+
+        const shouldShow =
+            config.category === "common" || filter === "all" || filter === config.category;
+        arrowLayer.olLayer.setVisible(shouldShow);
     });
 }
 
@@ -127,7 +147,9 @@ function applyParticipantFilter(features: ParticipantFeatureMap, filter: Distanc
     });
 }
 
-function resolveParticipantSource(mapModel: { layers: { getLayerById: (id: string) => unknown } }): VectorSource | null {
+function resolveParticipantSource(mapModel: {
+    layers: { getLayerById: (id: string) => unknown };
+}): VectorSource | null {
     const participantLayer = mapModel.layers.getLayerById(PARTICIPANT_LAYER_ID);
     if (!hasOlLayer(participantLayer)) {
         return null;
@@ -174,7 +196,9 @@ export function AppUI() {
     const intl = useIntl();
 
     const featuresRef = useRef<ParticipantFeatureMap>(new Map<string, ParticipantFeature>());
-    const participantDataRef = useRef<ActiveParticipantMap>(new Map<string, FollowableParticipant>());
+    const participantDataRef = useRef<ActiveParticipantMap>(
+        new Map<string, FollowableParticipant>()
+    );
     const followedParticipantIdRef = useRef<string | null>(null);
 
     const mapState = useMapModel(MAP_ID);
@@ -240,6 +264,12 @@ export function AppUI() {
     }, [followedParticipantId]);
 
     useEffect(() => {
+        if (!mapModel) return;
+        applyRouteFilter(mapModel, activeFilter);
+        applyArrowFilter(mapModel, activeFilter);
+    }, [activeFilter, mapModel]);
+
+    useEffect(() => {
         if (!isAuthenticated || !supabase || !mapModel) {
             return;
         }
@@ -268,7 +298,9 @@ export function AppUI() {
             features.delete(participantId);
             participantData.delete(participantId);
             syncParticipantState();
-            setFollowedParticipantId((currentId) => (currentId === participantId ? null : currentId));
+            setFollowedParticipantId((currentId) =>
+                currentId === participantId ? null : currentId
+            );
         };
 
         const updateOrAddMarker = (participant: Participant) => {
@@ -442,7 +474,9 @@ export function AppUI() {
                             {!isInfoPanelOpen && (
                                 <MapAnchor position="top-right" horizontalGap={20} verticalGap={20}>
                                     <IconButton
-                                        aria-label={intl.formatMessage({ id: "map.infoButtonLabel" })}
+                                        aria-label={intl.formatMessage({
+                                            id: "map.infoButtonLabel"
+                                        })}
                                         aria-expanded={isInfoPanelOpen}
                                         onClick={() => setIsInfoPanelOpen(true)}
                                         className="tracker-info-open-button"
@@ -454,13 +488,17 @@ export function AppUI() {
                                         boxShadow="0 4px 12px rgba(0,0,0,0.15)"
                                         _hover={{ bg: "white" }}
                                     >
-                                        <Text as="span" fontSize="18px" fontWeight="bold" lineHeight="1">
+                                        <Text
+                                            as="span"
+                                            fontSize="18px"
+                                            fontWeight="bold"
+                                            lineHeight="1"
+                                        >
                                             i
                                         </Text>
                                     </IconButton>
                                 </MapAnchor>
                             )}
-
                         </MapContainer>
 
                         <InfoPanel
@@ -471,8 +509,18 @@ export function AppUI() {
                         />
                     </>
                 ) : (
-                    <Flex className="tracker-map-loading" w="100%" h="100%" align="center" justify="center" bg="#eef2f5" color="#234">
-                        <Text className="tracker-map-loading-text" fontWeight="bold">{intl.formatMessage({ id: "map.loading" })}</Text>
+                    <Flex
+                        className="tracker-map-loading"
+                        w="100%"
+                        h="100%"
+                        align="center"
+                        justify="center"
+                        bg="#eef2f5"
+                        color="#234"
+                    >
+                        <Text className="tracker-map-loading-text" fontWeight="bold">
+                            {intl.formatMessage({ id: "map.loading" })}
+                        </Text>
                     </Flex>
                 )}
             </Box>

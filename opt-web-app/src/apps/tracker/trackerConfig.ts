@@ -11,6 +11,15 @@ export const COLORS = {
     run: "#f153d5"
 } as const;
 
+export const ARROW_CONFIG: Readonly<Record<string, number>> = {
+    "route-bike-volks": 4500,
+    "route-bike-olymp": 7500,
+    "route-run-volks": 1500,
+    "route-run-olymp": 3000
+} as const;
+
+export const ARROW_OFFSET_METERS = 20;
+
 export type DistanceFilter = "all" | "volks" | "olymp";
 
 export type DistanceCategory = Exclude<DistanceFilter, "all">;
@@ -45,7 +54,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
         title: "Schwimmen",
         url: "routes/Strecke_Schwimmen.json",
         color: COLORS.swim,
-        width: 4,
+        width: 6,
         category: "common"
     },
     {
@@ -53,7 +62,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
         title: "Radfahren Volks",
         url: "routes/Strecke_Fahrrad_Volks.gpx",
         color: COLORS.bike,
-        width: 4,
+        width: 5,
         category: "volks"
     },
     {
@@ -61,7 +70,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
         title: "Laufen Volks",
         url: "routes/Strecke_Laufen_Volks.gpx",
         color: COLORS.run,
-        width: 4,
+        width: 6,
         category: "volks"
     },
     {
@@ -69,7 +78,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
         title: "Radfahren Olymp",
         url: "routes/Strecke_Fahrrad_Olymp.gpx",
         color: COLORS.bike,
-        width: 4,
+        width: 5,
         category: "olymp"
     },
     {
@@ -77,7 +86,7 @@ export const ROUTES_CONFIG: ReadonlyArray<{
         title: "Laufen Olymp",
         url: "routes/Strecke_Laufen_Olymp.gpx",
         color: COLORS.run,
-        width: 4,
+        width: 6,
         category: "olymp"
     }
 ];
