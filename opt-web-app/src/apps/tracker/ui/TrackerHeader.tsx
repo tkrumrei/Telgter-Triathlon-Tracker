@@ -18,7 +18,7 @@ export function TrackerHeader(props: TrackerHeaderProps) {
             minH="56px"
             maxH="110px"
             className="tracker-header"
-            bg="#003366"
+            bg="linear-gradient(90deg, #003366 0%, #003366 72%, #0f4c84 100%)"
             color="white"
             boxShadow="0 2px 4px rgba(0,0,0,0.2)"
             align="center"
@@ -42,16 +42,16 @@ export function TrackerHeader(props: TrackerHeaderProps) {
             </Text>
 
             <Image
-                src="./Logo_Telgter_Triathlon_bgremoved.png"
+                src="./Logo_Telgter_Triathlon.png"
                 alt={intl.formatMessage({ id: "header.logoAlt" })}
-                h={{ base: "70%", md: "80%" }}
+                h={{ base: "80%", md: "90%" }}
                 w="auto"
                 objectFit="contain"
-                borderRadius="12px"
                 position="absolute"
                 right={{ base: "8px", md: "12px" }}
                 top="50%"
                 transform="translateY(-50%)"
+                filter="drop-shadow(0 5px 8px rgba(255, 255, 255, 0.92)) drop-shadow(0 2px 5px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.72))"
             />
         </Flex>
     );
