@@ -3,7 +3,7 @@
 
 import { Box, Button, HStack, IconButton, Input, Text, VStack } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { PackageIntl } from "@open-pioneer/runtime";
 
 export interface PanelParticipant {
@@ -62,6 +62,18 @@ export function ParticipantsPanel(props: ParticipantsPanelProps) {
     } = props;
     const intl = useIntl();
     const [participantSearch, setParticipantSearch] = useState("");
+
+    // Force a re-render every 10s so the relative "last updated" labels stay current
+    // even when no new position data arrives.
+    const [, setTick] = useState(0);
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const intervalId = setInterval(() => setTick((value) => value + 1), 10000);
+        return () => clearInterval(intervalId);
+    }, [isOpen]);
 
     const filteredParticipants = useMemo(() => {
         const normalizedSearch = participantSearch.trim().toLowerCase();

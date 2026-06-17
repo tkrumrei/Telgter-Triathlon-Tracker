@@ -30,8 +30,10 @@ const EVENT_CODE = import.meta.env.VITE_EVENT_CODE;
 
 const LOGIN_DURATION = 1000 * 60 * 10;
 const STORAGE_KEY = "tri_login_timestamp";
-const MARKER_TIMEOUT = 1000 * 60 * 30;
+const MARKER_TIMEOUT = 1000 * 60 * 15;
+const MARKER_STALE_THRESHOLD = 1000 * 60 * 5;
 const MARKER_CLEANUP_INTERVAL = 60000;
+const STALE_ALPHA = 0.4;
 
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
@@ -53,7 +55,19 @@ interface FollowableParticipant extends PanelParticipant {
     longitude: number;
 }
 
-function getParticipantStyle(name: string, distanzRaw: string): Style {
+function withAlpha(hexColor: string, alpha: number): string {
+    if (alpha >= 1) {
+        return hexColor;
+    }
+
+    const hex = hexColor.replace("#", "");
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function getParticipantStyle(name: string, distanzRaw: string, isStale = false): Style {
     const d = distanzRaw ? distanzRaw.toLowerCase() : "";
     const isVolks = d.includes("volks") || d === "v";
 
@@ -62,20 +76,40 @@ function getParticipantStyle(name: string, distanzRaw: string): Style {
     const textColor = isVolks ? "#000000" : "#213980";
     const textStroke = isVolks ? "#ffffff" : "#bedeff";
 
+    const alpha = isStale ? STALE_ALPHA : 1;
+
+    // Auf der Karte nur den Vornamen (Teil vor dem ersten Leerzeichen) anzeigen,
+    // damit lange Namen die Karte nicht überladen.
+    const firstName = name.trim().split(/\s+/)[0] ?? name;
+
     return new Style({
         image: new CircleStyle({
             radius: 6,
-            fill: new Fill({ color: fillColor }),
-            stroke: new Stroke({ color: strokeColor, width: 3 })
+            fill: new Fill({ color: withAlpha(fillColor, alpha) }),
+            stroke: new Stroke({ color: withAlpha(strokeColor, alpha), width: 3 })
         }),
         text: new OlText({
-            text: name,
+            text: firstName,
             offsetY: -12,
             font: "bold 12px Roboto, sans-serif",
-            fill: new Fill({ color: textColor }),
-            stroke: new Stroke({ color: textStroke, width: 2 })
+            fill: new Fill({ color: withAlpha(textColor, alpha) }),
+            stroke: new Stroke({ color: withAlpha(textStroke, alpha), width: 2 })
         })
     });
+}
+
+function resolveFeatureStyle(feature: ParticipantFeature, filter: DistanceFilter): Style {
+    const distanzRaw = String(feature.get("distanz") ?? "");
+    const name = String(feature.get("name") ?? "");
+
+    if (!matchesDistanceFilter(distanzRaw, filter)) {
+        return new Style({});
+    }
+
+    const ts = feature.get("last_updated_ts");
+    const lastUpdate = typeof ts === "number" ? ts : 0;
+    const isStale = Date.now() - lastUpdate > MARKER_STALE_THRESHOLD;
+    return getParticipantStyle(name, distanzRaw, isStale);
 }
 
 function hasOlLayer(layer: unknown): layer is { olLayer: BaseLayer } {
@@ -134,16 +168,7 @@ function applyArrowFilter(
 
 function applyParticipantFilter(features: ParticipantFeatureMap, filter: DistanceFilter): void {
     features.forEach((feature) => {
-        const distanzRaw = String(feature.get("distanz") ?? "");
-        const name = String(feature.get("name") ?? "");
-        const isVisible = matchesDistanceFilter(distanzRaw, filter);
-
-        if (isVisible) {
-            feature.setStyle(getParticipantStyle(name, distanzRaw));
-            return;
-        }
-
-        feature.setStyle(new Style({}));
+        feature.setStyle(resolveFeatureStyle(feature, filter));
     });
 }
 
@@ -200,6 +225,7 @@ export function AppUI() {
         new Map<string, FollowableParticipant>()
     );
     const followedParticipantIdRef = useRef<string | null>(null);
+    const activeFilterRef = useRef<DistanceFilter>("all");
 
     const mapState = useMapModel(MAP_ID);
     const mapModel = mapState.map;
@@ -262,6 +288,10 @@ export function AppUI() {
     useEffect(() => {
         followedParticipantIdRef.current = followedParticipantId;
     }, [followedParticipantId]);
+
+    useEffect(() => {
+        activeFilterRef.current = activeFilter;
+    }, [activeFilter]);
 
     useEffect(() => {
         if (!mapModel) return;
@@ -343,17 +373,18 @@ export function AppUI() {
 
             const existingFeature = participantSource.getFeatureById(id);
             const coords = fromLonLat([longitude, latitude]);
-            const style = getParticipantStyle(name, distanz);
 
             if (existingFeature) {
                 const geometry = existingFeature.getGeometry();
                 if (geometry instanceof Point) {
                     geometry.setCoordinates(coords);
                 }
+                existingFeature.set("name", name);
                 existingFeature.set("last_updated_ts", lastUpdate);
                 existingFeature.set("distanz", distanz);
-                existingFeature.setStyle(style);
-                features.set(id, existingFeature as ParticipantFeature);
+                const typedFeature = existingFeature as ParticipantFeature;
+                typedFeature.setStyle(resolveFeatureStyle(typedFeature, activeFilterRef.current));
+                features.set(id, typedFeature);
                 return;
             }
 
@@ -364,13 +395,13 @@ export function AppUI() {
             feature.setId(id);
             feature.set("last_updated_ts", lastUpdate);
             feature.set("distanz", distanz);
-            feature.setStyle(style);
+            feature.setStyle(resolveFeatureStyle(feature, activeFilterRef.current));
 
             participantSource.addFeature(feature);
             features.set(id, feature);
         };
 
-        const cleanupStaleMarkers = () => {
+        const refreshMarkers = () => {
             const now = Date.now();
             features.forEach((feature, id) => {
                 const ts = feature.get("last_updated_ts");
@@ -379,7 +410,9 @@ export function AppUI() {
                 }
                 if (now - ts > MARKER_TIMEOUT) {
                     removeParticipantFeature(id);
+                    return;
                 }
+                feature.setStyle(resolveFeatureStyle(feature, activeFilterRef.current));
             });
         };
 
@@ -402,7 +435,7 @@ export function AppUI() {
             )
             .subscribe();
 
-        const cleanupInterval = setInterval(cleanupStaleMarkers, MARKER_CLEANUP_INTERVAL);
+        const cleanupInterval = setInterval(refreshMarkers, MARKER_CLEANUP_INTERVAL);
 
         return () => {
             clearInterval(cleanupInterval);
