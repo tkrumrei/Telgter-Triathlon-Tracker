@@ -100,15 +100,15 @@ export const LEGEND_ITEMS = [
 export const SCHEDULE_TIMES: ReadonlyArray<ScheduleEntry> = [
     {
         distanz: "volks",
-        startTime: "08:40",
-        bikeArrivalEstimate: "09:30 - 10:00",
-        finishArrivalEstimate: "09:55 - 10:55"
+        startTime: "08:15",
+        bikeArrivalEstimate: "09:05 - 09:35",
+        finishArrivalEstimate: "09:30 - 10:30"
     },
     {
         distanz: "olymp",
-        startTime: "08:10",
-        bikeArrivalEstimate: "09:50 - 11:05",
-        finishArrivalEstimate: "10:40 - 12:30"
+        startTime: "",
+        bikeArrivalEstimate: "Hitzebedingt Abgesagt",
+        finishArrivalEstimate: ""
     }
 ];
 

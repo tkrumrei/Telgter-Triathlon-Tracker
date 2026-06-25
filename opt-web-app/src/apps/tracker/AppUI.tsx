@@ -208,7 +208,7 @@ export function AppUI() {
         return Date.now() - lastLogin < LOGIN_DURATION;
     });
 
-    const [activeFilter, setActiveFilter] = useState<DistanceFilter>("all");
+    const [activeFilter, setActiveFilter] = useState<DistanceFilter>("volks");
     const [isPanelOpen, setIsPanelOpen] = useState(true);
     const [isParticipantsPanelOpen, setIsParticipantsPanelOpen] = useState(false);
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
@@ -225,7 +225,7 @@ export function AppUI() {
         new Map<string, FollowableParticipant>()
     );
     const followedParticipantIdRef = useRef<string | null>(null);
-    const activeFilterRef = useRef<DistanceFilter>("all");
+    const activeFilterRef = useRef<DistanceFilter>("volks");
 
     const mapState = useMapModel(MAP_ID);
     const mapModel = mapState.map;

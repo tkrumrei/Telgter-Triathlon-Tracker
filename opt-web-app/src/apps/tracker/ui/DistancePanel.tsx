@@ -18,15 +18,18 @@ interface FilterButtonProps {
     activeFilter: DistanceFilter;
     onSelect: (filter: DistanceFilter) => void;
     children: string;
+    disabled?: boolean;
 }
 
 function FilterButton(props: FilterButtonProps) {
-    const { value, activeFilter, onSelect, children } = props;
+    const { value, activeFilter, onSelect, children, disabled = false } = props;
     const isActive = activeFilter === value;
 
     return (
         <Button
-            onClick={() => onSelect(value)}
+            onClick={() => !disabled && onSelect(value)}
+            disabled={disabled}
+            aria-disabled={disabled}
             className="tracker-filter-button"
             data-active={isActive}
             flex="1"
@@ -40,7 +43,9 @@ function FilterButton(props: FilterButtonProps) {
             borderRadius="6px"
             bg={isActive ? "#003366" : "white"}
             color={isActive ? "white" : "black"}
-            _hover={{ bg: isActive ? "#002a52" : "gray.50" }}
+            cursor={disabled ? "not-allowed" : "pointer"}
+            opacity={disabled ? 0.4 : 1}
+            _hover={{ bg: isActive ? "#002a52" : disabled ? "white" : "gray.50" }}
         >
             {children}
         </Button>
@@ -157,6 +162,7 @@ export function DistancePanel(props: DistancePanelProps) {
                             value="all"
                             activeFilter={activeFilter}
                             onSelect={onSelectFilter}
+                            disabled
                         >
                             {intl.formatMessage({ id: "distancePanel.filter.all" })}
                         </FilterButton>
@@ -171,6 +177,7 @@ export function DistancePanel(props: DistancePanelProps) {
                             value="olymp"
                             activeFilter={activeFilter}
                             onSelect={onSelectFilter}
+                            disabled
                         >
                             {intl.formatMessage({ id: "distancePanel.filter.olymp" })}
                         </FilterButton>
