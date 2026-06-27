@@ -168,6 +168,132 @@ export const FINISHERS: ReadonlyArray<FinisherEntry> = [
         finishTime: "",
         year: 2024,
         teilnahmen: 1
+    },
+    {
+        name: "Franziska I.",
+        distanz: "volks",
+        finishTime: "01:46:27",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Tobias K.",
+        distanz: "volks",
+        finishTime: "01:46:27",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Johannes W.",
+        distanz: "volks",
+        finishTime: "01:25:22",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Klaus L.",
+        distanz: "volks",
+        finishTime: "02:14:14",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Timon W.",
+        distanz: "volks",
+        finishTime: "02:04:25",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Michel P.",
+        distanz: "volks",
+        finishTime: "01:41:04",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Yannik V.",
+        distanz: "volks",
+        finishTime: "01:57:40",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Lennard M.",
+        distanz: "volks",
+        finishTime: "01:46:56",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Markus S.",
+        distanz: "volks",
+        finishTime: "01:47:47",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Felix L.",
+        distanz: "volks",
+        finishTime: "01:49:25",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Till F.",
+        distanz: "volks",
+        finishTime: "01:29:49",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Bennjamin K.",
+        distanz: "volks",
+        finishTime: "01:13:51",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "René S.",
+        distanz: "volks",
+        finishTime: "01:27:03",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Niklas K.",
+        distanz: "volks",
+        finishTime: "01:22:44",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Marko E.",
+        distanz: "volks",
+        finishTime: "01:17:36",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Luisa H., Leon H., Franzi B.",
+        distanz: "volks",
+        finishTime: "01:30:25",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Melanie H., Nils H., Elena H.",
+        distanz: "volks",
+        finishTime: "01:17:53",
+        year: 2026,
+        teilnahmen: 1
+    },
+    {
+        name: "Maya B., Felix B., Paul M.",
+        distanz: "volks",
+        finishTime: "01:15:22",
+        year: 2026,
+        teilnahmen: 1
     }
 ];
 

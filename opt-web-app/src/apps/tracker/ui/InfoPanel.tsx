@@ -360,9 +360,13 @@ export function InfoPanel(props: InfoPanelProps) {
                         </HStack>
                         <Box
                             className="tracker-info-table-wrap tracker-info-finishers-table-wrap"
-                            overflowX="auto"
                             px="2"
                             py="2"
+                            style={{
+                                maxHeight: "min(58vh, 460px)",
+                                overflowY: "auto",
+                                overflowX: "auto"
+                            }}
                         >
                             <Box
                                 minW={{ base: "100%", md: "840px" }}
