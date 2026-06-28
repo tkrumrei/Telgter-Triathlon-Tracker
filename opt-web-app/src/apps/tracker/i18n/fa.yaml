@@ -59,6 +59,7 @@ messages:
   infoPanel.distances.olymp.description: "شنا ۱۵۰۰ متر | دوچرخه ۴۰ کیلومتر | دویدن ۱۰ کیلومتر"
   infoPanel.finishers.title: "پایان‌دهندگان"
   infoPanel.finishers.filter.volks: "اسپرینت"
+  infoPanel.finishers.filter.svolks: "اسپرینت تیمی"
   infoPanel.finishers.filter.olympisch: "المپیک"
   infoPanel.finishers.col.rank: "#"
   infoPanel.finishers.col.name: "نام"

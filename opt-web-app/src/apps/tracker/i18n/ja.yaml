@@ -59,6 +59,7 @@ messages:
   infoPanel.distances.olymp.description: "スイム 1500m | バイク 40km | ラン 10km"
   infoPanel.finishers.title: "完走者"
   infoPanel.finishers.filter.volks: "スプリント"
+  infoPanel.finishers.filter.svolks: "リレースプリント"
   infoPanel.finishers.filter.olympisch: "オリンピック"
   infoPanel.finishers.col.rank: "#"
   infoPanel.finishers.col.name: "名前"

@@ -15,8 +15,8 @@ import { Circle as CircleStyle, Fill, Stroke, Style, Text as OlText } from "ol/s
 import "ol/ol.css";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import {
-    type DistanceCategory,
     type DistanceFilter,
+    type FinisherCategory,
     MAP_ID,
     PARTICIPANT_LAYER_ID,
     ROUTES_CONFIG
@@ -212,7 +212,7 @@ export function AppUI() {
     const [isPanelOpen, setIsPanelOpen] = useState(true);
     const [isParticipantsPanelOpen, setIsParticipantsPanelOpen] = useState(false);
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
-    const [infoFilter, setInfoFilter] = useState<DistanceCategory>("volks");
+    const [infoFilter, setInfoFilter] = useState<FinisherCategory>("volks");
     const [followedParticipantId, setFollowedParticipantId] = useState<string | null>(null);
     const [activeParticipants, setActiveParticipants] = useState<FollowableParticipant[]>([]);
     const [inputCode, setInputCode] = useState("");

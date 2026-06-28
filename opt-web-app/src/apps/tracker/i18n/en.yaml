@@ -59,6 +59,7 @@ messages:
   infoPanel.distances.olymp.description: "1500m Swim | 40km Bike | 10km Run"
   infoPanel.finishers.title: "Finishers"
   infoPanel.finishers.filter.volks: "Sprint"
+  infoPanel.finishers.filter.svolks: "Relay Sprint"
   infoPanel.finishers.filter.olympisch: "Olympic"
   infoPanel.finishers.col.rank: "#"
   infoPanel.finishers.col.name: "Name"

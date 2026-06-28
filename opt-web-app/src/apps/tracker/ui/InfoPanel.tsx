@@ -4,12 +4,12 @@
 import { Box, Button, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { useIntl } from "open-pioneer:react-hooks";
 import { useState } from "react";
-import { type DistanceCategory, FINISHERS, SCHEDULE_TIMES } from "../trackerConfig";
+import { FINISHERS, type FinisherCategory, SCHEDULE_TIMES } from "../trackerConfig";
 
 interface InfoPanelProps {
     isOpen: boolean;
-    activeFilter: DistanceCategory;
-    onSelectFilter: (filter: DistanceCategory) => void;
+    activeFilter: FinisherCategory;
+    onSelectFilter: (filter: FinisherCategory) => void;
     onClose: () => void;
 }
 
@@ -327,16 +327,14 @@ export function InfoPanel(props: InfoPanelProps) {
                             {intl.formatMessage({ id: "infoPanel.finishers.title" })}
                         </Text>
                         <HStack gap="2" wrap="wrap" justify="center" w="100%" mb="2">
-                            {(["volks", "olymp"] as const).map((filter) => {
+                            {(["volks", "svolks", "olymp"] as const).map((filter) => {
                                 const isActive = activeFilter === filter;
-                                const filterLabel =
-                                    filter === "volks"
-                                        ? intl.formatMessage({
-                                              id: "infoPanel.finishers.filter.volks"
-                                          })
-                                        : intl.formatMessage({
-                                              id: "infoPanel.finishers.filter.olympisch"
-                                          });
+                                const filterLabelId = {
+                                    volks: "infoPanel.finishers.filter.volks",
+                                    svolks: "infoPanel.finishers.filter.svolks",
+                                    olymp: "infoPanel.finishers.filter.olympisch"
+                                }[filter];
+                                const filterLabel = intl.formatMessage({ id: filterLabelId });
                                 return (
                                     <Button
                                         key={filter}

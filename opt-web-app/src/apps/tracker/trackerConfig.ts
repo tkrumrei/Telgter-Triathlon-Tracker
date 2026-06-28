@@ -24,6 +24,8 @@ export type DistanceFilter = "all" | "volks" | "olymp";
 
 export type DistanceCategory = Exclude<DistanceFilter, "all">;
 
+export type FinisherCategory = DistanceCategory | "svolks";
+
 export interface ScheduleEntry {
     distanz: DistanceCategory;
     startTime: string;
@@ -33,7 +35,7 @@ export interface ScheduleEntry {
 
 export interface FinisherEntry {
     name: string;
-    distanz: DistanceCategory;
+    distanz: FinisherCategory;
     finishTime: string;
     year: number;
     teilnahmen: number;
@@ -276,21 +278,21 @@ export const FINISHERS: ReadonlyArray<FinisherEntry> = [
     },
     {
         name: "Luisa H., Leon H., Franzi B.",
-        distanz: "volks",
+        distanz: "svolks",
         finishTime: "01:30:25",
         year: 2026,
         teilnahmen: 1
     },
     {
         name: "Melanie H., Nils H., Elena H.",
-        distanz: "volks",
+        distanz: "svolks",
         finishTime: "01:17:53",
         year: 2026,
         teilnahmen: 1
     },
     {
         name: "Maya B., Felix B., Paul M.",
-        distanz: "volks",
+        distanz: "svolks",
         finishTime: "01:15:22",
         year: 2026,
         teilnahmen: 1
